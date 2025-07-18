@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/client_dashboard_controller.dart';
 import '../models/client_model.dart';
+import '../../../widgets/universal_popup.dart';
 
 class ClientDashboardView extends GetView<ClientDashboardController> {
   const ClientDashboardView({super.key});
@@ -75,7 +76,7 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
+                        color: Colors.grey.withValues(alpha: 0.1),
                         spreadRadius: 1,
                         blurRadius: 3,
                         offset: const Offset(0, 1),
@@ -165,109 +166,78 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
                       borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withOpacity(0.1),
+                          color: Colors.grey.withValues(alpha: 0.1),
                           spreadRadius: 1,
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      leading: Container(
-                        width: 50,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.blue[100],
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            client.name[0].toUpperCase(),
-                            style: TextStyle(
-                              color: Colors.blue[700],
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: () => controller.viewClientDetails(client),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.blue[100],
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    client.name[0].toUpperCase(),
+                                    style: TextStyle(
+                                      color: Colors.blue[700],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      client.name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Room',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'No activities yet',
+                                      style: TextStyle(
+                                        color: Colors.grey[500],
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => _showClientActions(client),
+                                icon: Icon(Icons.more_vert, color: Colors.grey[600]),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                      title: Text(
-                        client.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 4),
-                          Text(
-                            'Room',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 14,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'No activities yet',
-                            style: TextStyle(
-                              color: Colors.grey[500],
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      onTap: () => controller.viewClientDetails(client),
-                      trailing: PopupMenuButton<String>(
-                        icon: Icon(Icons.more_vert, color: Colors.grey[600]),
-                        onSelected: (value) {
-                          switch (value) {
-                            case 'care':
-                              controller.handleClientAction('care', client);
-                              break;
-                            case 'edit':
-                              controller.handleClientAction('edit', client);
-                              break;
-                            case 'delete':
-                              _showDeleteConfirmation(client);
-                              break;
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                            value: 'care',
-                            child: Row(
-                              children: [
-                                Icon(Icons.medical_services),
-                                SizedBox(width: 8),
-                                Text('Care Log'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'edit',
-                            child: Row(
-                              children: [
-                                Icon(Icons.edit),
-                                SizedBox(width: 8),
-                                Text('Edit'),
-                              ],
-                            ),
-                          ),
-                          const PopupMenuItem(
-                            value: 'delete',
-                            child: Row(
-                              children: [
-                                Icon(Icons.delete, color: Colors.red),
-                                SizedBox(width: 8),
-                                Text('Delete', style: TextStyle(color: Colors.red)),
-                              ],
-                            ),
-                          ),
-                        ],
                       ),
                     ),
                   );
@@ -282,7 +252,7 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: Colors.blue.withOpacity(0.3),
+              color: Colors.blue.withValues(alpha: 0.3),
               spreadRadius: 2,
               blurRadius: 8,
               offset: const Offset(0, 4),
@@ -301,7 +271,7 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
+              color: Colors.grey.withValues(alpha: 0.1),
               spreadRadius: 1,
               blurRadius: 4,
               offset: const Offset(0, -2),
@@ -343,6 +313,40 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
       ),
     );
   }
+
+  void _showClientActions(Client client) {
+    UniversalPopup.show(
+      title: client.name,
+      subtitle: 'Select an action',
+      icon: Icons.people,
+      color: Colors.blue,
+      actions: [
+        PopupAction(
+          title: 'Care Log',
+          icon: Icons.medical_services,
+          color: Colors.green,
+          onTap: () => controller.handleClientAction('care', client),
+        ),
+        PopupAction(
+          title: 'Edit',
+          icon: Icons.edit,
+          color: Colors.blue,
+          onTap: () => controller.handleClientAction('edit', client),
+        ),
+        PopupAction(
+          title: 'Delete',
+          icon: Icons.delete,
+          color: Colors.red,
+          onTap: () {
+            Get.back();
+            _showDeleteConfirmation(client);
+          },
+        ),
+      ],
+    );
+  }
+
+
 
   void _showLocationSelector() {
     Get.bottomSheet(
@@ -409,33 +413,15 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
   }
 
   void _showDeleteConfirmation(Client client) {
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Delete Client'),
-        content: Text('Are you sure you want to delete ${client.name}? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: Text(
-              'Cancel',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Get.back();
-              controller.deleteClient(client);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[600],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+    UniversalPopup.showConfirmation(
+      title: 'Delete Client',
+      message: 'Are you sure you want to delete ${client.name}? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmColor: Colors.red,
+      onConfirm: () {
+        controller.deleteClient(client);
+      },
     );
   }
 } 

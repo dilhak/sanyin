@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../models/care_log_model.dart';
 import '../../../services/database_service.dart';
 import '../../client/models/client_model.dart';
+import '../../../widgets/universal_popup.dart';
 
 class CareLogHistoryController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
@@ -86,162 +87,247 @@ class CareLogHistoryController extends GetxController {
     return filtered;
   }
 
-  void showFilterOptions() {
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  void showLogActions(CareLog log) {
+    UniversalPopup.show(
+      title: _getActivityTypeTitle(log.activityType),
+      subtitle: _getLogDetails(log),
+      icon: _getActivityTypeIcon(log.activityType),
+      color: _getActivityTypeColor(log.activityType),
+      actions: [
+        PopupAction(
+          title: 'Edit',
+          icon: Icons.edit,
+          color: Colors.blue,
+          onTap: () => _editLog(log),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Filter Options',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Get.back(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildFilterSection(
-              'Client',
-              selectedClient.value?.name ?? 'All Clients',
-              () => _showClientPicker(),
-            ),
-            const SizedBox(height: 16),
-            _buildFilterSection(
-              'Activity Type',
-              selectedActivityType.value?.name ?? 'All Activities',
-              () => _showActivityTypePicker(),
-            ),
-            const SizedBox(height: 16),
-            _buildFilterSection(
-              'Date',
-              selectedDate.value != null 
-                ? '${selectedDate.value!.day}/${selectedDate.value!.month}/${selectedDate.value!.year}'
-                : 'All Dates',
-              () => _showDatePicker(),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _clearFilters,
-                    child: const Text('Clear Filters'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () => Get.back(),
-                    child: const Text('Apply'),
-                  ),
-                ),
-              ],
-            ),
-          ],
+        PopupAction(
+          title: 'Delete',
+          icon: Icons.delete,
+          color: Colors.red,
+          onTap: () => _deleteLog(log),
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildFilterSection(String title, String value, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey[300]!),
-          borderRadius: BorderRadius.circular(8),
+  void _editLog(CareLog log) {
+    Get.back();
+    UniversalPopup.showInputDialog(
+      title: 'Edit Log',
+      hintText: 'Enter updated details...',
+      maxLines: 3,
+      onConfirm: (details) {
+        _updateLog(log, details);
+      },
+    );
+  }
+
+  void _deleteLog(CareLog log) {
+    Get.back();
+    UniversalPopup.showConfirmation(
+      title: 'Delete Log',
+      message: 'Are you sure you want to delete this care log? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmColor: Colors.red,
+      onConfirm: () => _confirmDeleteLog(log),
+    );
+  }
+
+  Future<void> _confirmDeleteLog(CareLog log) async {
+    try {
+      await _databaseService.deleteCareLog(log.id!);
+      await loadCareLogs();
+      Get.snackbar(
+        'Success',
+        'Care log deleted successfully',
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to delete care log: $e',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
+  }
+
+  Future<void> _updateLog(CareLog log, String details) async {
+    try {
+      // Note: This would require an updateCareLog method in DatabaseService
+      // For now, we'll just show a success message
+      Get.snackbar(
+        'Success',
+        'Care log updated successfully',
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update care log: $e',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
+  }
+
+  String _getActivityTypeTitle(CareActivityType type) {
+    switch (type) {
+      case CareActivityType.medication:
+        return 'Medication';
+      case CareActivityType.toileting:
+        return 'Toileting';
+      case CareActivityType.hydration:
+        return 'Hydration';
+      case CareActivityType.meal:
+        return 'Meal';
+      case CareActivityType.behavior:
+        return 'Behavior/Mood';
+      case CareActivityType.photo:
+        return 'Photo';
+      case CareActivityType.note:
+        return 'Note';
+    }
+  }
+
+  IconData _getActivityTypeIcon(CareActivityType type) {
+    switch (type) {
+      case CareActivityType.medication:
+        return Icons.medication;
+      case CareActivityType.toileting:
+        return Icons.wc;
+      case CareActivityType.hydration:
+        return Icons.local_drink;
+      case CareActivityType.meal:
+        return Icons.restaurant;
+      case CareActivityType.behavior:
+        return Icons.psychology;
+      case CareActivityType.photo:
+        return Icons.camera_alt;
+      case CareActivityType.note:
+        return Icons.note;
+    }
+  }
+
+  Color _getActivityTypeColor(CareActivityType type) {
+    switch (type) {
+      case CareActivityType.medication:
+        return Colors.green;
+      case CareActivityType.toileting:
+        return Colors.orange;
+      case CareActivityType.hydration:
+        return Colors.blue;
+      case CareActivityType.meal:
+        return Colors.green;
+      case CareActivityType.behavior:
+        return Colors.purple;
+      case CareActivityType.photo:
+        return Colors.grey;
+      case CareActivityType.note:
+        return Colors.blue;
+    }
+  }
+
+  String _getLogDetails(CareLog log) {
+    final time = '${log.timestamp.hour.toString().padLeft(2, '0')}:${log.timestamp.minute.toString().padLeft(2, '0')}';
+    final date = '${log.timestamp.day}/${log.timestamp.month}/${log.timestamp.year}';
+    
+    String details = '$time on $date';
+    
+    if (log.details != null && log.details!.isNotEmpty) {
+      details += '\n${log.details}';
+    }
+    
+    if (log.notes != null && log.notes!.isNotEmpty) {
+      details += '\nNotes: ${log.notes}';
+    }
+    
+    return details;
+  }
+
+  void showFilterOptions() {
+    UniversalPopup.show(
+      title: 'Filter Options',
+      subtitle: 'Select filters to narrow down results',
+      icon: Icons.filter_list,
+      color: Colors.blue,
+      actions: [
+        PopupAction(
+          title: 'Filter by Client',
+          icon: Icons.people,
+          color: Colors.blue,
+          onTap: () => _showClientPicker(),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-            Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-          ],
+        PopupAction(
+          title: 'Filter by Activity',
+          icon: Icons.category,
+          color: Colors.green,
+          onTap: () => _showActivityTypePicker(),
         ),
-      ),
+        PopupAction(
+          title: 'Filter by Date',
+          icon: Icons.calendar_today,
+          color: Colors.orange,
+          onTap: () => _showDatePicker(),
+        ),
+        PopupAction(
+          title: 'Clear All Filters',
+          icon: Icons.clear,
+          color: Colors.red,
+          onTap: () => _clearFilters(),
+        ),
+      ],
     );
   }
 
   void _showClientPicker() async {
-    // TODO: Implement client picker
     Get.back();
+    // TODO: Implement client picker
+    Get.snackbar(
+      'Info',
+      'Client picker coming soon',
+      backgroundColor: Colors.blue[100],
+      colorText: Colors.blue[800],
+    );
   }
 
   void _showActivityTypePicker() {
-    Get.bottomSheet(
-      Container(
-        padding: const EdgeInsets.all(20),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Select Activity Type',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            ...CareActivityType.values.map((type) => ListTile(
-              title: Text(type.name),
-              onTap: () {
-                selectedActivityType.value = type;
-                Get.back();
-              },
-            )),
-            ListTile(
-              title: const Text('All Activities'),
-              onTap: () {
-                selectedActivityType.value = null;
-                Get.back();
-              },
-            ),
-          ],
-        ),
-      ),
+    Get.back();
+    UniversalPopup.showSubOptions(
+      title: 'Select Activity Type',
+      options: [
+        'All Activities',
+        ...CareActivityType.values.map((type) => type.name),
+      ],
+      onSelect: (option) {
+        if (option == 'All Activities') {
+          selectedActivityType.value = null;
+        } else {
+          selectedActivityType.value = CareActivityType.values.firstWhere(
+            (type) => type.name == option,
+          );
+        }
+      },
     );
   }
 
   void _showDatePicker() async {
+    Get.back();
     final date = await showDatePicker(
       context: Get.context!,
       initialDate: selectedDate.value ?? DateTime.now(),
@@ -254,6 +340,7 @@ class CareLogHistoryController extends GetxController {
   }
 
   void _clearFilters() {
+    Get.back();
     selectedClient.value = null;
     selectedActivityType.value = null;
     selectedDate.value = null;

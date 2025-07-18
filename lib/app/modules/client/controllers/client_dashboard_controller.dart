@@ -40,7 +40,7 @@ class ClientDashboardController extends GetxController {
   }
 
   void viewClientDetails(Client client) {
-    Get.toNamed('/client/details', arguments: client);
+    Get.toNamed(Routes.CLIENT_DETAILS, arguments: client);
   }
 
   void handleClientAction(String action, Client client) {
