@@ -7,6 +7,10 @@ class AddClientView extends GetView<AddClientController> {
 
   @override
   Widget build(BuildContext context) {
+    // Auto-focus the first field when the view loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(controller.nameFocusNode);
+    });
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
@@ -30,10 +34,56 @@ class AddClientView extends GetView<AddClientController> {
               ),
             ),
           ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: Colors.blue[600]),
+            onSelected: (value) {
+              switch (value) {
+                case 'help':
+                  Get.snackbar(
+                    'Help',
+                    'Fill in the required fields (name is required) and tap Save to add the client',
+                    backgroundColor: Colors.green[100],
+                    colorText: Colors.green[800],
+                  );
+                  break;
+                case 'settings':
+                  Get.snackbar(
+                    'Info',
+                    'Settings coming soon',
+                    backgroundColor: Colors.blue[100],
+                    colorText: Colors.blue[800],
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'help',
+                child: Row(
+                  children: [
+                    Icon(Icons.help),
+                    SizedBox(width: 8),
+                    Text('Help'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 8),
+                    Text('Settings'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -99,34 +149,44 @@ class AddClientView extends GetView<AddClientController> {
               child: Column(
                 children: [
                   _buildTextField(
+                    context: context,
                     controller: controller.nameController,
+                    focusNode: controller.nameFocusNode,
                     label: 'Full Name',
                     icon: Icons.person,
                     isRequired: true,
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
+                    context: context,
                     controller: controller.phoneController,
+                    focusNode: controller.phoneFocusNode,
                     label: 'Phone Number',
                     icon: Icons.phone,
                     keyboardType: TextInputType.phone,
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
+                    context: context,
                     controller: controller.addressController,
+                    focusNode: controller.addressFocusNode,
                     label: 'Address',
                     icon: Icons.location_on,
                     maxLines: 2,
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
+                    context: context,
                     controller: controller.emergencyContactController,
+                    focusNode: controller.emergencyContactFocusNode,
                     label: 'Emergency Contact',
                     icon: Icons.emergency,
                   ),
                   const SizedBox(height: 16),
                   _buildTextField(
+                    context: context,
                     controller: controller.medicalNotesController,
+                    focusNode: controller.medicalNotesFocusNode,
                     label: 'Medical Notes',
                     icon: Icons.medical_services,
                     maxLines: 3,
@@ -141,7 +201,9 @@ class AddClientView extends GetView<AddClientController> {
   }
 
   Widget _buildTextField({
+    required BuildContext context,
     required TextEditingController controller,
+    FocusNode? focusNode,
     required String label,
     required IconData icon,
     bool isRequired = false,
@@ -176,8 +238,16 @@ class AddClientView extends GetView<AddClientController> {
         const SizedBox(height: 8),
         TextField(
           controller: controller,
+          focusNode: focusNode,
           keyboardType: keyboardType,
           maxLines: maxLines,
+          textInputAction: maxLines == 1 ? TextInputAction.next : TextInputAction.done,
+          onSubmitted: (_) {
+            // Auto-focus next field or dismiss keyboard
+            if (context.mounted) {
+              FocusScope.of(context).nextFocus();
+            }
+          },
           decoration: InputDecoration(
             hintText: 'Enter ${label.toLowerCase()}',
             border: OutlineInputBorder(
@@ -198,6 +268,14 @@ class AddClientView extends GetView<AddClientController> {
               horizontal: 16,
               vertical: 12,
             ),
+                                   suffixIcon: maxLines > 1 ? IconButton(
+                         icon: Icon(Icons.keyboard_hide, color: Colors.grey[600]),
+                         onPressed: () {
+                           if (context.mounted) {
+                             FocusScope.of(context).unfocus();
+                           }
+                         },
+                       ) : null,
           ),
         ),
       ],

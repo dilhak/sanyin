@@ -6,8 +6,12 @@ import '../controllers/photo_capture_controller.dart';
 class PhotoCaptureView extends GetView<PhotoCaptureController> {
   const PhotoCaptureView({super.key});
 
-  @override
+    @override
   Widget build(BuildContext context) {
+    // Auto-focus the notes field when the view loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FocusScope.of(context).requestFocus(controller.notesFocusNode);
+    });
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
@@ -32,10 +36,56 @@ class PhotoCaptureView extends GetView<PhotoCaptureController> {
                 ),
               ),
             ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: Colors.blue[600]),
+            onSelected: (value) {
+              switch (value) {
+                case 'help':
+                  Get.snackbar(
+                    'Help',
+                    'Take a photo or select from gallery, then add optional notes and save',
+                    backgroundColor: Colors.green[100],
+                    colorText: Colors.green[800],
+                  );
+                  break;
+                case 'settings':
+                  Get.snackbar(
+                    'Info',
+                    'Settings coming soon',
+                    backgroundColor: Colors.blue[100],
+                    colorText: Colors.blue[800],
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'help',
+                child: Row(
+                  children: [
+                    Icon(Icons.help),
+                    SizedBox(width: 8),
+                    Text('Help'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 8),
+                    Text('Settings'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         child: Column(
           children: [
             // Photo preview
@@ -160,31 +210,38 @@ class PhotoCaptureView extends GetView<PhotoCaptureController> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  TextField(
-                    controller: controller.notesController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: 'Add notes about this photo...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.blue[600]!),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                  ),
+                                     TextField(
+                     controller: controller.notesController,
+                     focusNode: controller.notesFocusNode,
+                     maxLines: 3,
+                     textInputAction: TextInputAction.done,
+                     onSubmitted: (_) => FocusScope.of(context).unfocus(),
+                     decoration: InputDecoration(
+                       hintText: 'Add notes about this photo...',
+                       border: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(12),
+                         borderSide: BorderSide(color: Colors.grey[300]!),
+                       ),
+                       enabledBorder: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(12),
+                         borderSide: BorderSide(color: Colors.grey[300]!),
+                       ),
+                       focusedBorder: OutlineInputBorder(
+                         borderRadius: BorderRadius.circular(12),
+                         borderSide: BorderSide(color: Colors.blue[600]!),
+                       ),
+                       filled: true,
+                       fillColor: Colors.grey[50],
+                       contentPadding: const EdgeInsets.symmetric(
+                         horizontal: 16,
+                         vertical: 12,
+                       ),
+                       suffixIcon: IconButton(
+                         icon: Icon(Icons.keyboard_hide, color: Colors.grey[600]),
+                         onPressed: () => FocusScope.of(context).unfocus(),
+                       ),
+                     ),
+                   ),
                 ],
               ),
             ),

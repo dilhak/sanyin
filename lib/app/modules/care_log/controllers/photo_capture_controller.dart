@@ -4,12 +4,14 @@ import '../models/care_log_model.dart';
 import '../../../services/database_service.dart';
 import '../../../services/photo_service.dart';
 import '../../client/models/client_model.dart';
+import '../controllers/care_log_history_controller.dart';
 
 class PhotoCaptureController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
   final PhotoService _photoService = PhotoService();
   
   final TextEditingController notesController = TextEditingController();
+  final FocusNode notesFocusNode = FocusNode();
   final RxString selectedPhotoPath = RxString('');
   final RxBool isLoading = false.obs;
   
@@ -24,6 +26,7 @@ class PhotoCaptureController extends GetxController {
   @override
   void onClose() {
     notesController.dispose();
+    notesFocusNode.dispose();
     super.onClose();
   }
 
@@ -121,6 +124,14 @@ class PhotoCaptureController extends GetxController {
       );
 
       await _databaseService.insertCareLog(careLog);
+      
+      // Refresh care log history if it exists
+      try {
+        final careLogHistoryController = Get.find<CareLogHistoryController>();
+        await careLogHistoryController.loadCareLogs();
+      } catch (e) {
+        // Care log history controller not found, that's okay
+      }
       
       Get.back();
       Get.snackbar(

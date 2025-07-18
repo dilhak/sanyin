@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../models/care_log_model.dart';
 import '../../client/models/client_model.dart';
 import '../../../services/database_service.dart';
+import '../controllers/care_log_history_controller.dart';
 
 class QuickActionsController extends GetxController {
   late Client client;
@@ -607,6 +608,14 @@ class QuickActionsController extends GetxController {
       );
 
       await _databaseService.insertCareLog(careLog);
+      
+      // Refresh care log history if it exists
+      try {
+        final careLogHistoryController = Get.find<CareLogHistoryController>();
+        await careLogHistoryController.loadCareLogs();
+      } catch (e) {
+        // Care log history controller not found, that's okay
+      }
       
       Get.snackbar(
         'Success',

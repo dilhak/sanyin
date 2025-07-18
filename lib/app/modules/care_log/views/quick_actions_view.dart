@@ -24,16 +24,63 @@ class QuickActionsView extends GetView<QuickActionsController> {
             icon: Icon(Icons.history, color: Colors.blue[600]),
             onPressed: () => Get.toNamed('/care/history'),
           ),
-          Container(
-            margin: const EdgeInsets.only(right: 16),
-            decoration: BoxDecoration(
-              color: Colors.blue[600],
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.more_vert, color: Colors.white),
-              onPressed: () {},
-            ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: Colors.blue[600]),
+            onSelected: (value) {
+              switch (value) {
+                case 'client_details':
+                  Get.back(); // Go back to client dashboard
+                  break;
+                case 'settings':
+                  Get.snackbar(
+                    'Info',
+                    'Settings coming soon',
+                    backgroundColor: Colors.blue[100],
+                    colorText: Colors.blue[800],
+                  );
+                  break;
+                case 'help':
+                  Get.snackbar(
+                    'Help',
+                    'Tap any action card to log care activities for this client',
+                    backgroundColor: Colors.green[100],
+                    colorText: Colors.green[800],
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'client_details',
+                child: Row(
+                  children: [
+                    Icon(Icons.people),
+                    SizedBox(width: 8),
+                    Text('Client Details'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 8),
+                    Text('Settings'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'help',
+                child: Row(
+                  children: [
+                    Icon(Icons.help),
+                    SizedBox(width: 8),
+                    Text('Help'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -67,6 +114,7 @@ class QuickActionsView extends GetView<QuickActionsController> {
           Expanded(
             child: GridView.count(
               padding: const EdgeInsets.all(16),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
@@ -147,7 +195,21 @@ class QuickActionsView extends GetView<QuickActionsController> {
         ),
         child: BottomNavigationBar(
           currentIndex: 0,
-          onTap: (index) {},
+          onTap: (index) {
+            switch (index) {
+              case 0:
+                Get.back(); // Go back to clients
+                break;
+              case 1:
+                Get.snackbar(
+                  'Info',
+                  'Settings coming soon',
+                  backgroundColor: Colors.blue[100],
+                  colorText: Colors.blue[800],
+                );
+                break;
+            }
+          },
           type: BottomNavigationBarType.fixed,
           backgroundColor: Colors.white,
           selectedItemColor: Colors.blue[600],

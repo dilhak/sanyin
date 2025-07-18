@@ -25,6 +25,51 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
             icon: Icon(Icons.filter_list, color: Colors.blue[600]),
             onPressed: controller.showFilterOptions,
           ),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: Colors.blue[600]),
+            onSelected: (value) {
+              switch (value) {
+                case 'export':
+                  Get.snackbar(
+                    'Info',
+                    'Export functionality coming soon',
+                    backgroundColor: Colors.blue[100],
+                    colorText: Colors.blue[800],
+                  );
+                  break;
+                case 'settings':
+                  Get.snackbar(
+                    'Info',
+                    'Settings coming soon',
+                    backgroundColor: Colors.blue[100],
+                    colorText: Colors.blue[800],
+                  );
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'export',
+                child: Row(
+                  children: [
+                    Icon(Icons.download),
+                    SizedBox(width: 8),
+                    Text('Export Data'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'settings',
+                child: Row(
+                  children: [
+                    Icon(Icons.settings),
+                    SizedBox(width: 8),
+                    Text('Settings'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Obx(() {
@@ -39,6 +84,7 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
         return RefreshIndicator(
           onRefresh: controller.loadCareLogs,
           child: ListView.builder(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.all(16),
             itemCount: controller.groupedLogs.length,
             itemBuilder: (context, index) {

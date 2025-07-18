@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/client_model.dart';
 import '../../../services/database_service.dart';
+import '../controllers/client_dashboard_controller.dart';
 
 class AddClientController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
@@ -11,6 +12,13 @@ class AddClientController extends GetxController {
   final TextEditingController addressController = TextEditingController();
   final TextEditingController emergencyContactController = TextEditingController();
   final TextEditingController medicalNotesController = TextEditingController();
+  
+  // Focus nodes for better keyboard navigation
+  final FocusNode nameFocusNode = FocusNode();
+  final FocusNode phoneFocusNode = FocusNode();
+  final FocusNode addressFocusNode = FocusNode();
+  final FocusNode emergencyContactFocusNode = FocusNode();
+  final FocusNode medicalNotesFocusNode = FocusNode();
 
   final RxBool isLoading = false.obs;
 
@@ -21,6 +29,14 @@ class AddClientController extends GetxController {
     addressController.dispose();
     emergencyContactController.dispose();
     medicalNotesController.dispose();
+    
+    // Dispose focus nodes
+    nameFocusNode.dispose();
+    phoneFocusNode.dispose();
+    addressFocusNode.dispose();
+    emergencyContactFocusNode.dispose();
+    medicalNotesFocusNode.dispose();
+    
     super.onClose();
   }
 
@@ -42,6 +58,10 @@ class AddClientController extends GetxController {
       );
 
       await _databaseService.insertClient(client);
+      
+      // Refresh the client dashboard
+      final clientDashboardController = Get.find<ClientDashboardController>();
+      await clientDashboardController.loadClients();
       
       Get.back();
       Get.snackbar(
