@@ -202,6 +202,12 @@ class CareLogHistoryController extends GetxController {
         return 'Photo';
       case CareActivityType.note:
         return 'Note';
+      case CareActivityType.pain:
+        return 'Pain & Discomfort';
+      case CareActivityType.vitals:
+        return 'Vitals';
+      case CareActivityType.location:
+        return 'Location & Presence';
     }
   }
 
@@ -221,6 +227,12 @@ class CareLogHistoryController extends GetxController {
         return Icons.camera_alt;
       case CareActivityType.note:
         return Icons.note;
+      case CareActivityType.pain:
+        return Icons.sick;
+      case CareActivityType.vitals:
+        return Icons.favorite;
+      case CareActivityType.location:
+        return Icons.location_on;
     }
   }
 
@@ -240,6 +252,12 @@ class CareLogHistoryController extends GetxController {
         return Colors.grey;
       case CareActivityType.note:
         return Colors.blue;
+      case CareActivityType.pain:
+        return Colors.red;
+      case CareActivityType.vitals:
+        return Colors.pink;
+      case CareActivityType.location:
+        return Colors.teal;
     }
   }
 

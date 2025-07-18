@@ -65,33 +65,38 @@ class UniversalPopup {
               ),
             ),
             const SizedBox(height: 24),
-            // Action buttons
-            ...actions.map((action) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: action.onTap,
-                  icon: Icon(action.icon, color: Colors.white, size: 20),
-                  label: Text(
-                    action.title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+            // Action buttons in 2 columns
+            Flexible(
+              child: SingleChildScrollView(
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: actions.map((action) => SizedBox(
+                    width: (Get.width - 72) / 2,
+                    child: ElevatedButton.icon(
+                      onPressed: action.onTap,
+                      icon: Icon(action.icon, color: Colors.white, size: 18),
+                      label: Text(
+                        action.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: action.color,
+                        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
                     ),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: action.color,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    elevation: 0,
-                  ),
+                  )).toList(),
                 ),
               ),
-            )),
+            ),
             const SizedBox(height: 24),
           ],
         ),

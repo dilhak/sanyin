@@ -306,6 +306,18 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
         icon = Icons.note;
         color = Colors.indigo[600]!;
         break;
+      case CareActivityType.pain:
+        icon = Icons.sick;
+        color = Colors.red[600]!;
+        break;
+      case CareActivityType.vitals:
+        icon = Icons.favorite;
+        color = Colors.pink[600]!;
+        break;
+      case CareActivityType.location:
+        icon = Icons.location_on;
+        color = Colors.teal[600]!;
+        break;
     }
 
     return Container(

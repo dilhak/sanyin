@@ -6,6 +6,9 @@ enum CareActivityType {
   behavior,
   photo,
   note,
+  pain,
+  vitals,
+  location,
 }
 
 enum MedicationAction { given, refused }
