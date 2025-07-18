@@ -6,6 +6,7 @@ abstract class Routes {
   static const HOME = _Paths.HOME;
   static const SPLASH = _Paths.SPLASH;
   static const CLIENT_DASHBOARD = _Paths.CLIENT_DASHBOARD;
+  static const ADD_CLIENT = _Paths.ADD_CLIENT;
   static const QUICK_ACTIONS = _Paths.QUICK_ACTIONS;
 }
 
@@ -14,5 +15,6 @@ abstract class _Paths {
   static const HOME = '/home';
   static const SPLASH = '/splash';
   static const CLIENT_DASHBOARD = '/client/dashboard';
+  static const ADD_CLIENT = '/client/add';
   static const QUICK_ACTIONS = '/care/log';
 }

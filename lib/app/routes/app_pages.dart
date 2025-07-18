@@ -6,6 +6,8 @@ import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/client/bindings/client_dashboard_binding.dart';
 import '../modules/client/views/client_dashboard_view.dart';
+import '../modules/client/bindings/add_client_binding.dart';
+import '../modules/client/views/add_client_view.dart';
 import '../modules/care_log/bindings/quick_actions_binding.dart';
 import '../modules/care_log/views/quick_actions_view.dart';
 
@@ -31,6 +33,11 @@ class AppPages {
       name: _Paths.CLIENT_DASHBOARD,
       page: () => const ClientDashboardView(),
       binding: ClientDashboardBinding(),
+    ),
+    GetPage(
+      name: _Paths.ADD_CLIENT,
+      page: () => const AddClientView(),
+      binding: AddClientBinding(),
     ),
     GetPage(
       name: _Paths.QUICK_ACTIONS,

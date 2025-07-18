@@ -1,10 +1,13 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/client_model.dart';
 import '../../../routes/app_pages.dart';
+import '../../../services/database_service.dart';
 
 class ClientDashboardController extends GetxController {
   final RxList<Client> clients = <Client>[].obs;
   final RxBool isLoading = false.obs;
+  final DatabaseService _databaseService = DatabaseService();
 
   @override
   void onInit() {
@@ -15,40 +18,25 @@ class ClientDashboardController extends GetxController {
   Future<void> loadClients() async {
     isLoading.value = true;
     try {
-      // TODO: Load clients from local database
-      // For now, using mock data
-      await Future.delayed(const Duration(milliseconds: 500));
-      clients.value = [
-        Client(
-          id: 1,
-          name: 'John Smith',
-          phoneNumber: '+1-555-0123',
-          address: '123 Main St, City, State',
-          emergencyContact: 'Jane Smith +1-555-0124',
-          medicalNotes: 'Diabetic, requires insulin',
-          createdAt: DateTime.now().subtract(const Duration(days: 5)),
-          updatedAt: DateTime.now(),
-        ),
-        Client(
-          id: 2,
-          name: 'Mary Johnson',
-          phoneNumber: '+1-555-0125',
-          address: '456 Oak Ave, City, State',
-          emergencyContact: 'Bob Johnson +1-555-0126',
-          medicalNotes: 'Heart condition, low sodium diet',
-          createdAt: DateTime.now().subtract(const Duration(days: 3)),
-          updatedAt: DateTime.now(),
-        ),
-      ];
+      final clientsList = await _databaseService.getClients();
+      clients.value = clientsList;
     } catch (e) {
-      Get.snackbar('Error', 'Failed to load clients: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to load clients: $e',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
     } finally {
       isLoading.value = false;
     }
   }
 
   void addNewClient() {
-    Get.toNamed('/client/add');
+    Get.toNamed(Routes.ADD_CLIENT);
   }
 
   void viewClientDetails(Client client) {
@@ -71,5 +59,31 @@ class ClientDashboardController extends GetxController {
 
   void refreshClients() {
     loadClients();
+  }
+
+  Future<void> deleteClient(Client client) async {
+    try {
+      await _databaseService.deleteClient(client.id!);
+      await loadClients();
+      Get.snackbar(
+        'Success',
+        'Client deleted successfully',
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to delete client: $e',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
   }
 } 

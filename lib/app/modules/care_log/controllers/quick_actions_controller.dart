@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/care_log_model.dart';
 import '../../client/models/client_model.dart';
+import '../../../services/database_service.dart';
 
 class QuickActionsController extends GetxController {
   late Client client;
   String get clientName => client.name;
+  final DatabaseService _databaseService = DatabaseService();
 
   @override
   void onInit() {
@@ -594,17 +596,38 @@ class QuickActionsController extends GetxController {
     _saveCareLog(CareActivityType.behavior, type, option);
   }
 
-  void _saveCareLog(CareActivityType activityType, String action, [String? subAction]) {
-    // TODO: Save to local database
-    Get.snackbar(
-      'Success',
-      'Care activity logged successfully',
-      backgroundColor: Colors.green[100],
-      colorText: Colors.green[800],
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
+  void _saveCareLog(CareActivityType activityType, String action, [String? subAction]) async {
+    try {
+      final careLog = CareLog(
+        clientId: client.id!,
+        activityType: activityType,
+        action: action,
+        subAction: subAction,
+        timestamp: DateTime.now(),
+      );
+
+      await _databaseService.insertCareLog(careLog);
+      
+      Get.snackbar(
+        'Success',
+        'Care activity logged successfully',
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to log care activity: $e',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
   }
 
   void takePhoto() {
