@@ -1,4 +1,4 @@
-import 'package:flutter_demo/app/services/splash_service.dart';
+import 'package:sanyin/app/services/splash_service.dart';
 import 'package:get/get.dart';
 
 class SplashController extends GetxController {

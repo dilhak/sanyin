@@ -263,7 +263,7 @@ class CareLogHistoryController extends GetxController {
 
   String _getLogDetails(CareLog log) {
     final time = '${log.timestamp.hour.toString().padLeft(2, '0')}:${log.timestamp.minute.toString().padLeft(2, '0')}';
-    final date = '${log.timestamp.day}/${log.timestamp.month}/${log.timestamp.year}';
+    final date = '${log.timestamp.month.toString().padLeft(2, '0')}/${log.timestamp.day.toString().padLeft(2, '0')}/${log.timestamp.year}';
     
     String details = '$time on $date';
     

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'dart:io';
 import '../controllers/care_log_history_controller.dart';
 import '../models/care_log_model.dart';
 
@@ -154,7 +155,7 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
     } else if (date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day) {
       dateText = 'Yesterday';
     } else {
-      dateText = '${date.day}/${date.month}/${date.year}';
+      dateText = '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}';
     }
 
     return Container(
@@ -199,6 +200,7 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Header with icon, action, and time
                 Row(
                   children: [
                     _buildActivityIcon(log.activityType),
@@ -214,7 +216,7 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (log.subAction != null)
+                          if (log.subAction != null && !_isSubActionRedundant(log))
                             Text(
                               log.subAction!,
                               style: TextStyle(
@@ -234,6 +236,37 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
                     ),
                   ],
                 ),
+                
+                // Details section
+                if (log.details != null && log.details!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.blue[200]!),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.blue[600], size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            log.details!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.blue[700],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                
+                // Notes section
                 if (log.notes != null && log.notes!.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   Container(
@@ -241,16 +274,27 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
                       borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.grey[200]!),
                     ),
-                    child: Text(
-                      log.notes!,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[700],
-                      ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.note, color: Colors.grey[600], size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            log.notes!,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
+                
+                // Photo section
                 if (log.photoPath != null) ...[
                   const SizedBox(height: 8),
                   Container(
@@ -258,8 +302,12 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
                     width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      image: DecorationImage(
-                        image: AssetImage(log.photoPath!),
+                      border: Border.all(color: Colors.grey[200]!),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.file(
+                        File(log.photoPath!),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -332,5 +380,32 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
 
   String _formatTime(DateTime time) {
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+  }
+
+  bool _isSubActionRedundant(CareLog log) {
+    if (log.subAction == null || log.details == null) return false;
+    
+    // Check if subAction is already included in details
+    final details = log.details!.toLowerCase();
+    final subAction = log.subAction!.toLowerCase();
+    
+    // Common patterns where subAction is redundant
+    if (details.contains(subAction)) return true;
+    
+    // Check for specific patterns like "Medicine: X - given" where X is the subAction
+    if (log.activityType == CareActivityType.medication) {
+      if (details.contains('medicine: $subAction -') || details.contains('medicine: $subAction ')) {
+        return true;
+      }
+    }
+    
+    // Check for meal patterns like "Meal: breakfast - Ate All" where "Ate All" is subAction
+    if (log.activityType == CareActivityType.meal) {
+      if (details.contains('meal:') && details.contains(subAction)) {
+        return true;
+      }
+    }
+    
+    return false;
   }
 } 
