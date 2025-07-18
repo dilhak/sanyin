@@ -20,6 +20,10 @@ class QuickActionsView extends GetView<QuickActionsController> {
           onPressed: () => Get.back(),
         ),
         actions: [
+          IconButton(
+            icon: Icon(Icons.history, color: Colors.blue[600]),
+            onPressed: () => Get.toNamed('/care/history'),
+          ),
           Container(
             margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(

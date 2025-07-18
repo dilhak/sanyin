@@ -631,16 +631,7 @@ class QuickActionsController extends GetxController {
   }
 
   void takePhoto() {
-    // TODO: Implement camera functionality
-    Get.snackbar(
-      'Info',
-      'Camera functionality coming soon',
-      backgroundColor: Colors.blue[100],
-      colorText: Colors.blue[800],
-      snackPosition: SnackPosition.BOTTOM,
-      margin: const EdgeInsets.all(16),
-      borderRadius: 12,
-    );
+    Get.toNamed('/care/photo', arguments: client);
   }
 
   void showNoteDialog() {

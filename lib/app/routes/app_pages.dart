@@ -10,6 +10,10 @@ import '../modules/client/bindings/add_client_binding.dart';
 import '../modules/client/views/add_client_view.dart';
 import '../modules/care_log/bindings/quick_actions_binding.dart';
 import '../modules/care_log/views/quick_actions_view.dart';
+import '../modules/care_log/bindings/care_log_history_binding.dart';
+import '../modules/care_log/views/care_log_history_view.dart';
+import '../modules/care_log/bindings/photo_capture_binding.dart';
+import '../modules/care_log/views/photo_capture_view.dart';
 
 part 'app_routes.dart';
 
@@ -43,6 +47,16 @@ class AppPages {
       name: _Paths.QUICK_ACTIONS,
       page: () => const QuickActionsView(),
       binding: QuickActionsBinding(),
+    ),
+    GetPage(
+      name: _Paths.CARE_LOG_HISTORY,
+      page: () => const CareLogHistoryView(),
+      binding: CareLogHistoryBinding(),
+    ),
+    GetPage(
+      name: _Paths.PHOTO_CAPTURE,
+      page: () => const PhotoCaptureView(),
+      binding: PhotoCaptureBinding(),
     ),
   ];
 }
