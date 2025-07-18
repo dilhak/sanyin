@@ -29,60 +29,9 @@ class ClientDetailsView extends GetView<ClientDetailsController> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Client header
-            Container(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: Colors.blue[100],
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withValues(alpha: 0.2),
-                          spreadRadius: 2,
-                          blurRadius: 8,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Text(
-                        controller.client.name[0].toUpperCase(),
-                        style: TextStyle(
-                          color: Colors.blue[700],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 32,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    controller.client.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Room 101',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ],
-              ),
-            ),
             // Quick actions header
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
               child: Column(
                 children: [
                   const Text(
@@ -104,7 +53,6 @@ class ClientDetailsView extends GetView<ClientDetailsController> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
             // Quick actions grid
             GridView.count(
               padding: const EdgeInsets.all(16),
@@ -215,7 +163,7 @@ class ClientDetailsView extends GetView<ClientDetailsController> {
           onTap: (index) {
             switch (index) {
               case 0:
-                Get.back(); // Go back to clients
+                // Already on clients page, do nothing
                 break;
               case 1:
                 Get.snackbar(

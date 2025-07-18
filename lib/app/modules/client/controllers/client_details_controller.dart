@@ -221,76 +221,46 @@ class ClientDetailsController extends GetxController {
       color: Colors.teal,
       actions: [
         PopupAction(
-          title: 'In Room',
+          title: 'Bedroom',
           icon: Icons.bed,
           color: Colors.blue,
-          onTap: () => _logLocation('in_room', 'In Room'),
+          onTap: () => _logLocation('bedroom', 'Bedroom'),
         ),
         PopupAction(
           title: 'Common Area',
           icon: Icons.tv,
           color: Colors.green,
-          onTap: () => _logLocation('common_area', 'In Facility - Common Area'),
+          onTap: () => _logLocation('common_area', 'Common Area'),
         ),
         PopupAction(
-          title: 'Activity Room',
-          icon: Icons.sports_esports,
-          color: Colors.orange,
-          onTap: () => _logLocation('activity_room', 'In Facility - Activity Room'),
-        ),
-        PopupAction(
-          title: 'Courtyard',
-          icon: Icons.park,
-          color: Colors.green,
-          onTap: () => _logLocation('courtyard', 'Outside in Courtyard'),
-        ),
-        PopupAction(
-          title: 'Out - Accompanied',
-          icon: Icons.people,
-          color: Colors.blue,
-          onTap: () => _logLocation('out_accompanied', 'Out of Facility - Accompanied'),
-        ),
-        PopupAction(
-          title: 'Out - Unaccompanied',
+          title: 'Outside - Alone',
           icon: Icons.person,
           color: Colors.orange,
-          onTap: () => _logLocation('out_unaccompanied', 'Out of Facility - Unaccompanied'),
+          onTap: () => _logLocation('outside_alone', 'Outside - Alone'),
         ),
         PopupAction(
-          title: 'Other Company Site',
+          title: 'Outside - DSP',
+          icon: Icons.people,
+          color: Colors.blue,
+          onTap: () => _logLocation('outside_dsp', 'Outside - DSP'),
+        ),
+        PopupAction(
+          title: 'With Family',
+          icon: Icons.family_restroom,
+          color: Colors.purple,
+          onTap: () => _logLocation('with_family', 'With Family'),
+        ),
+        PopupAction(
+          title: 'Out of Facility',
           icon: Icons.business,
           color: Colors.grey,
-          onTap: () => _logLocation('other_company', 'Out of Facility - Other Company Site'),
+          onTap: () => _logLocation('out_of_facility', 'Out of Facility'),
         ),
         PopupAction(
-          title: 'Therapeutic Leave',
-          icon: Icons.beach_access,
-          color: Colors.cyan,
-          onTap: () => _logLocation('therapeutic_leave', 'On Therapeutic Leave'),
-        ),
-        PopupAction(
-          title: 'Medical Appointment',
-          icon: Icons.medical_services,
-          color: Colors.purple,
-          onTap: () => _logLocation('medical_appointment', 'At Medical Appointment'),
-        ),
-        PopupAction(
-          title: 'Hospitalized',
+          title: 'Hospital / ER',
           icon: Icons.local_hospital,
           color: Colors.red,
-          onTap: () => _logLocation('hospitalized', 'Hospitalized'),
-        ),
-        PopupAction(
-          title: 'Returned from Leave',
-          icon: Icons.home,
-          color: Colors.green,
-          onTap: () => _logLocation('returned_leave', 'Returned from Leave'),
-        ),
-        PopupAction(
-          title: 'Bedbound',
-          icon: Icons.bed,
-          color: Colors.grey,
-          onTap: () => _logLocation('bedbound', 'Bedbound'),
+          onTap: () => _logLocation('hospital_er', 'Hospital / ER'),
         ),
       ],
     );
@@ -399,184 +369,418 @@ class ClientDetailsController extends GetxController {
     final TextEditingController tempController = TextEditingController();
     final TextEditingController respController = TextEditingController();
     
-    Get.dialog(
-      AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+    Get.bottomSheet(
+      Container(
+        constraints: BoxConstraints(
+          maxHeight: Get.height * 0.8,
         ),
-        title: const Text('Vitals Assessment'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: bpController,
-                decoration: const InputDecoration(
-                  labelText: 'Blood Pressure (e.g., 120/80)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.text,
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: pulseController,
-                decoration: const InputDecoration(
-                  labelText: 'Pulse (beats per minute)',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 24),
+            // Header
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.pink.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: tempController,
-                decoration: const InputDecoration(
-                  labelText: 'Temperature (°F) - Optional',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
+              child: Icon(
+                Icons.favorite,
+                color: Colors.pink[600],
+                size: 30,
               ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: respController,
-                decoration: const InputDecoration(
-                  labelText: 'Respirations (per minute) - Optional',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.number,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Vitals Assessment',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.orange[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.orange[200]!),
-                ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Enter vital signs for ${client.name}',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Form fields
+            Expanded(
+              child: SingleChildScrollView(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Call Nurse If:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange[800],
+                    TextField(
+                      controller: bpController,
+                      decoration: InputDecoration(
+                        labelText: 'Blood Pressure (e.g., 120/80)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.pink[600]!),
+                        ),
                       ),
+                      keyboardType: TextInputType.text,
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '• BP: Systolic >150 or <90, Diastolic >90 or <50\n'
-                      '• Pulse: >100 or <50\n'
-                      '• Temp: >100°F or <95°F\n'
-                      '• Respirations: >24 or <12',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.orange[700],
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: pulseController,
+                      decoration: InputDecoration(
+                        labelText: 'Pulse (beats per minute)',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.pink[600]!),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: tempController,
+                      decoration: InputDecoration(
+                        labelText: 'Temperature (°F) - Optional',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.pink[600]!),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: respController,
+                      decoration: InputDecoration(
+                        labelText: 'Respirations (per minute) - Optional',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(color: Colors.pink[600]!),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[50],
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.orange[200]!),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.warning, color: Colors.orange[700], size: 20),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Call Nurse If:',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange[800],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '• BP: Systolic >150 or <90, Diastolic >90 or <50\n'
+                            '• Pulse: >100 or <50\n'
+                            '• Temp: >100°F or <95°F\n'
+                            '• Respirations: >24 or <12',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange[700],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final bp = bpController.text.trim();
-              final pulse = pulseController.text.trim();
-              final temp = tempController.text.trim();
-              final resp = respController.text.trim();
-              
-              if (bp.isEmpty && pulse.isEmpty && temp.isEmpty && resp.isEmpty) {
-                Get.snackbar(
-                  'Error',
-                  'Please enter at least one vital sign',
-                  backgroundColor: Colors.red[100],
-                  colorText: Colors.red[800],
-                );
-                return;
-              }
-              
-              // Validate and check for nurse call thresholds
-              final warnings = <String>[];
-              
-              if (bp.isNotEmpty) {
-                final bpParts = bp.split('/');
-                if (bpParts.length == 2) {
-                  final systolic = int.tryParse(bpParts[0]);
-                  final diastolic = int.tryParse(bpParts[1]);
-                  if (systolic != null && diastolic != null) {
-                    if (systolic > 150 || systolic < 90 || diastolic > 90 || diastolic < 50) {
-                      warnings.add('Blood Pressure: ${systolic}/${diastolic}');
-                    }
-                  }
-                }
-              }
-              
-              if (pulse.isNotEmpty) {
-                final pulseValue = int.tryParse(pulse);
-                if (pulseValue != null && (pulseValue > 100 || pulseValue < 50)) {
-                  warnings.add('Pulse: $pulseValue');
-                }
-              }
-              
-              if (temp.isNotEmpty) {
-                final tempValue = double.tryParse(temp);
-                if (tempValue != null && (tempValue > 100 || tempValue < 95)) {
-                  warnings.add('Temperature: ${tempValue}°F');
-                }
-              }
-              
-              if (resp.isNotEmpty) {
-                final respValue = int.tryParse(resp);
-                if (respValue != null && (respValue > 24 || respValue < 12)) {
-                  warnings.add('Respirations: $respValue');
-                }
-              }
-              
-              Get.back();
-              
-              // Log vitals
-              _saveCareLog(
-                CareActivityType.vitals,
-                'assessment',
-                null,
-                'Vitals: BP: $bp, Pulse: $pulse, Temp: $temp, Resp: $resp',
-              );
-              
-              // Show warnings if any
-              if (warnings.isNotEmpty) {
-                Get.dialog(
-                  AlertDialog(
-                    title: const Text('⚠️ Call Nurse'),
-                    content: Text(
-                      'The following vital signs are outside normal ranges:\n\n'
-                      '${warnings.join('\n')}\n\n'
-                      'Please contact a nurse immediately.',
-                    ),
-                    actions: [
-                      ElevatedButton(
-                        onPressed: () => Get.back(),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
-                        child: const Text('OK'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue[600],
             ),
-            child: const Text('Save'),
-          ),
-        ],
+            const SizedBox(height: 24),
+            // Action buttons
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Get.back(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[300],
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.grey[700],
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final bp = bpController.text.trim();
+                      final pulse = pulseController.text.trim();
+                      final temp = tempController.text.trim();
+                      final resp = respController.text.trim();
+                      
+                      if (bp.isEmpty && pulse.isEmpty && temp.isEmpty && resp.isEmpty) {
+                        Get.snackbar(
+                          'Error',
+                          'Please enter at least one vital sign',
+                          backgroundColor: Colors.red[100],
+                          colorText: Colors.red[800],
+                        );
+                        return;
+                      }
+                      
+                      // Validate and check for nurse call thresholds
+                      final warnings = <String>[];
+                      
+                      if (bp.isNotEmpty) {
+                        final bpParts = bp.split('/');
+                        if (bpParts.length == 2) {
+                          final systolic = int.tryParse(bpParts[0]);
+                          final diastolic = int.tryParse(bpParts[1]);
+                          if (systolic != null && diastolic != null) {
+                            if (systolic > 150 || systolic < 90 || diastolic > 90 || diastolic < 50) {
+                              warnings.add('Blood Pressure: ${systolic}/${diastolic}');
+                            }
+                          }
+                        }
+                      }
+                      
+                      if (pulse.isNotEmpty) {
+                        final pulseValue = int.tryParse(pulse);
+                        if (pulseValue != null && (pulseValue > 100 || pulseValue < 50)) {
+                          warnings.add('Pulse: $pulseValue');
+                        }
+                      }
+                      
+                      if (temp.isNotEmpty) {
+                        final tempValue = double.tryParse(temp);
+                        if (tempValue != null && (tempValue > 100 || tempValue < 95)) {
+                          warnings.add('Temperature: ${tempValue}°F');
+                        }
+                      }
+                      
+                      if (resp.isNotEmpty) {
+                        final respValue = int.tryParse(resp);
+                        if (respValue != null && (respValue > 24 || respValue < 12)) {
+                          warnings.add('Respirations: $respValue');
+                        }
+                      }
+                      
+                      Get.back();
+                      
+                      // Log vitals
+                      _saveCareLog(
+                        CareActivityType.vitals,
+                        'assessment',
+                        null,
+                        'Vitals: BP: $bp, Pulse: $pulse, Temp: $temp, Resp: $resp',
+                      );
+                      
+                      // Show warnings if any
+                      if (warnings.isNotEmpty) {
+                        _showNurseCallWarning(warnings);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.pink[600],
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showNurseCallWarning(List<String> warnings) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Warning icon
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.warning,
+                color: Colors.red[600],
+                size: 30,
+              ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              '⚠️ Call Nurse',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Abnormal vital signs detected',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Warning details
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.red[200]!),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'The following vital signs are outside normal ranges:',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red[800],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ...warnings.map((warning) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      children: [
+                        Icon(Icons.error, color: Colors.red[600], size: 16),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            warning,
+                            style: TextStyle(
+                              color: Colors.red[700],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )).toList(),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Please contact a nurse immediately.',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red[800],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            // Action button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => Get.back(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[600],
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'OK',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
