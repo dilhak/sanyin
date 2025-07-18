@@ -11,7 +11,7 @@ class SplashService {
 
   Future<void> checkUserLogin() async {
     Future.delayed(const Duration(seconds: 2), () {
-      Get.offAllNamed(Routes.HOME);
+      Get.offAllNamed(Routes.CLIENT_DASHBOARD);
     });
   }
 }
