@@ -5,6 +5,7 @@ import '../../client/models/client_model.dart';
 import '../../../services/database_service.dart';
 import '../controllers/care_log_history_controller.dart';
 import '../../../widgets/universal_popup.dart';
+import '../../../widgets/responsive_bottom_drawer.dart';
 
 class QuickActionsController extends GetxController {
   late Client client;
@@ -47,7 +48,7 @@ class QuickActionsController extends GetxController {
   }
 
   void showToiletingActions() {
-    UniversalPopup.show(
+    ResponsiveBottomDrawer.showActions(
       title: 'Toileting',
       subtitle: 'Select an option for $clientName',
       icon: Icons.wc,

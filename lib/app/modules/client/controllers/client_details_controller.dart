@@ -5,15 +5,35 @@ import '../../../routes/app_pages.dart';
 import '../../../widgets/universal_popup.dart';
 import '../../care_log/models/care_log_model.dart';
 import '../../../services/database_service.dart';
+import '../../../services/notification_service.dart';
+import '../../../models/reminder_model.dart';
+import '../views/reminder_management_view.dart';
+import '../../../widgets/reminder_dialog.dart';
+import '../../../widgets/responsive_bottom_drawer.dart';
 
 class ClientDetailsController extends GetxController {
   late Client client;
   final DatabaseService _databaseService = DatabaseService();
+  final NotificationService _notificationService = NotificationService();
+  
+  final RxList<Reminder> reminders = <Reminder>[].obs;
   
   @override
   void onInit() {
     super.onInit();
     client = Get.arguments as Client;
+    _loadReminders();
+  }
+
+  Future<void> _loadReminders() async {
+    try {
+      final loadedReminders = await _databaseService.getRemindersForClient(client.id!);
+      reminders.assignAll(loadedReminders);
+    } catch (e) {
+      // Handle database errors gracefully
+      print('Error loading reminders: $e');
+      reminders.clear();
+    }
   }
 
   void showMedicationActions() {
@@ -46,7 +66,7 @@ class ClientDetailsController extends GetxController {
   }
 
   void showToiletingActions() {
-    UniversalPopup.show(
+    ResponsiveBottomDrawer.showActions(
       title: 'Toileting',
       subtitle: 'Select an option for ${client.name}',
       icon: Icons.wc,
@@ -369,61 +389,15 @@ class ClientDetailsController extends GetxController {
     final TextEditingController tempController = TextEditingController();
     final TextEditingController respController = TextEditingController();
     
-    Get.bottomSheet(
-      Container(
-        constraints: BoxConstraints(
-          maxHeight: Get.height * 0.8,
-        ),
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
+    ResponsiveBottomDrawer.show(
+      title: 'Vitals Assessment',
+      subtitle: 'Enter vital signs for ${client.name}',
+      icon: Icons.favorite,
+      color: Colors.pink[600]!,
+      content: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle bar
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 24),
-            // Header
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                color: Colors.pink.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.favorite,
-                color: Colors.pink[600],
-                size: 30,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Vitals Assessment',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Enter vital signs for ${client.name}',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 24),
             // Form fields
             Expanded(
               child: SingleChildScrollView(
@@ -646,7 +620,6 @@ class ClientDetailsController extends GetxController {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -982,5 +955,300 @@ class ClientDetailsController extends GetxController {
 
   void goBack() {
     Get.back();
+  }
+
+  // Reminder management methods
+  void showReminderManagement() {
+    Get.to(() => const ReminderManagementView());
+  }
+
+  void showAddReminderDialog() {
+    ReminderDialog.show(
+      title: 'Add Reminder',
+      clientName: client.name,
+      onConfirm: (title, description, scheduledTime) async {
+        await _addReminder(title, description, scheduledTime);
+      },
+    );
+  }
+
+  Future<void> _addReminder(String title, String description, DateTime scheduledTime) async {
+    // Validate inputs
+    if (title.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a reminder title',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return;
+    }
+
+    if (description.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a reminder description',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return;
+    }
+
+    if (scheduledTime.isBefore(DateTime.now())) {
+      Get.snackbar(
+        'Error',
+        'Please select a future date and time',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return;
+    }
+
+    try {
+      final reminder = Reminder(
+        clientId: client.id!,
+        title: title.trim(),
+        description: description.trim(),
+        scheduledTime: scheduledTime,
+      );
+
+      final id = await _databaseService.insertReminder(reminder);
+      final savedReminder = Reminder(
+        id: id,
+        clientId: client.id!,
+        title: title.trim(),
+        description: description.trim(),
+        scheduledTime: scheduledTime,
+      );
+
+      await _notificationService.scheduleReminder(savedReminder);
+      await _loadReminders();
+
+      Get.snackbar(
+        'Success',
+        'Reminder added successfully',
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to add reminder: $e',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
+  }
+
+  void editReminder(Reminder reminder) {
+    ReminderDialog.show(
+      title: 'Edit Reminder',
+      clientName: client.name,
+      initialTitle: reminder.title,
+      initialDescription: reminder.description,
+      initialDateTime: reminder.scheduledTime,
+      onConfirm: (title, description, scheduledTime) async {
+        await _updateReminder(reminder, title, description, scheduledTime);
+      },
+    );
+  }
+
+  Future<void> _updateReminder(Reminder reminder, String title, String description, DateTime scheduledTime) async {
+    // Validate inputs
+    if (title.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a reminder title',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return;
+    }
+
+    if (description.trim().isEmpty) {
+      Get.snackbar(
+        'Error',
+        'Please enter a reminder description',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return;
+    }
+
+    if (scheduledTime.isBefore(DateTime.now())) {
+      Get.snackbar(
+        'Error',
+        'Please select a future date and time',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+      return;
+    }
+
+    try {
+      final updatedReminder = Reminder(
+        id: reminder.id,
+        clientId: client.id!,
+        title: title.trim(),
+        description: description.trim(),
+        scheduledTime: scheduledTime,
+        isActive: reminder.isActive,
+        frequency: reminder.frequency,
+        createdAt: reminder.createdAt,
+      );
+
+      await _databaseService.updateReminder(updatedReminder);
+      await _notificationService.cancelReminder(reminder.id!);
+      await _notificationService.scheduleReminder(updatedReminder);
+      await _loadReminders();
+
+      Get.snackbar(
+        'Success',
+        'Reminder updated successfully',
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to update reminder: $e',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
+  }
+
+  Future<void> toggleReminder(Reminder reminder) async {
+    try {
+      final updatedReminder = Reminder(
+        id: reminder.id,
+        clientId: client.id!,
+        title: reminder.title,
+        description: reminder.description,
+        scheduledTime: reminder.scheduledTime,
+        isActive: !reminder.isActive,
+        frequency: reminder.frequency,
+        createdAt: reminder.createdAt,
+      );
+
+      await _databaseService.updateReminder(updatedReminder);
+      
+      if (updatedReminder.isActive) {
+        await _notificationService.scheduleReminder(updatedReminder);
+      } else {
+        await _notificationService.cancelReminder(reminder.id!);
+      }
+      
+      await _loadReminders();
+
+      Get.snackbar(
+        'Success',
+        'Reminder ${updatedReminder.isActive ? 'enabled' : 'disabled'}',
+        backgroundColor: Colors.green[100],
+        colorText: Colors.green[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to toggle reminder: $e',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+        snackPosition: SnackPosition.BOTTOM,
+        margin: const EdgeInsets.all(16),
+        borderRadius: 12,
+      );
+    }
+  }
+
+  Future<void> deleteReminder(Reminder reminder) async {
+    // Show confirmation dialog
+    Get.dialog(
+      AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Text('Delete Reminder'),
+        content: Text('Are you sure you want to delete "${reminder.title}"?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text(
+              'Cancel',
+              style: TextStyle(color: Colors.grey[600]),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Get.back();
+              try {
+                await _databaseService.deleteReminder(reminder.id!);
+                await _notificationService.cancelReminder(reminder.id!);
+                await _loadReminders();
+
+                Get.snackbar(
+                  'Success',
+                  'Reminder deleted successfully',
+                  backgroundColor: Colors.green[100],
+                  colorText: Colors.green[800],
+                  snackPosition: SnackPosition.BOTTOM,
+                  margin: const EdgeInsets.all(16),
+                  borderRadius: 12,
+                );
+              } catch (e) {
+                Get.snackbar(
+                  'Error',
+                  'Failed to delete reminder: $e',
+                  backgroundColor: Colors.red[100],
+                  colorText: Colors.red[800],
+                  snackPosition: SnackPosition.BOTTOM,
+                  margin: const EdgeInsets.all(16),
+                  borderRadius: 12,
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[600],
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
   }
 } 

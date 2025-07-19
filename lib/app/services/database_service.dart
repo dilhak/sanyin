@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../modules/client/models/client_model.dart';
 import '../modules/care_log/models/care_log_model.dart';
+import '../models/reminder_model.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
@@ -23,8 +24,9 @@ class DatabaseService {
     String path = join(await getDatabasesPath(), 'sanyin.db');
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
     );
   }
 
@@ -58,6 +60,40 @@ class DatabaseService {
         FOREIGN KEY (clientId) REFERENCES clients (id)
       )
     ''');
+
+    // Create reminders table
+    await db.execute('''
+      CREATE TABLE reminders(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        clientId INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        scheduledTime INTEGER NOT NULL,
+        isActive INTEGER NOT NULL,
+        frequency TEXT,
+        createdAt INTEGER NOT NULL,
+        FOREIGN KEY (clientId) REFERENCES clients (id)
+      )
+    ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      // Add reminders table for version 2
+      await db.execute('''
+        CREATE TABLE reminders(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          clientId INTEGER NOT NULL,
+          title TEXT NOT NULL,
+          description TEXT NOT NULL,
+          scheduledTime INTEGER NOT NULL,
+          isActive INTEGER NOT NULL,
+          frequency TEXT,
+          createdAt INTEGER NOT NULL,
+          FOREIGN KEY (clientId) REFERENCES clients (id)
+        )
+      ''');
+    }
   }
 
   // Client operations
@@ -141,6 +177,51 @@ class DatabaseService {
     final db = await database;
     return await db.delete(
       'care_logs',
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
+  // Reminder operations
+  Future<int> insertReminder(Reminder reminder) async {
+    final db = await database;
+    return await db.insert('reminders', reminder.toMap());
+  }
+
+  Future<List<Reminder>> getRemindersForClient(int clientId) async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'reminders',
+      where: 'clientId = ?',
+      whereArgs: [clientId],
+      orderBy: 'scheduledTime ASC',
+    );
+    return List.generate(maps.length, (i) => Reminder.fromMap(maps[i]));
+  }
+
+  Future<List<Reminder>> getAllReminders() async {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'reminders',
+      orderBy: 'scheduledTime ASC',
+    );
+    return List.generate(maps.length, (i) => Reminder.fromMap(maps[i]));
+  }
+
+  Future<int> updateReminder(Reminder reminder) async {
+    final db = await database;
+    return await db.update(
+      'reminders',
+      reminder.toMap(),
+      where: 'id = ?',
+      whereArgs: [reminder.id],
+    );
+  }
+
+  Future<int> deleteReminder(int id) async {
+    final db = await database;
+    return await db.delete(
+      'reminders',
       where: 'id = ?',
       whereArgs: [id],
     );

@@ -20,9 +20,40 @@ class ClientDetailsView extends GetView<ClientDetailsController> {
           onPressed: () => controller.goBack(),
         ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.edit, color: Colors.blue[600]),
-            onPressed: () => controller.editClient(),
+          PopupMenuButton<String>(
+            icon: Icon(Icons.more_vert, color: Colors.blue[600]),
+            onSelected: (value) {
+              switch (value) {
+                case 'edit':
+                  controller.editClient();
+                  break;
+                case 'reminders':
+                  controller.showReminderManagement();
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Icons.edit, size: 18, color: Colors.blue[600]),
+                    const SizedBox(width: 8),
+                    const Text('Edit Client'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'reminders',
+                child: Row(
+                  children: [
+                    Icon(Icons.notifications, size: 18, color: Colors.orange[600]),
+                    const SizedBox(width: 8),
+                    const Text('Manage Reminders'),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
