@@ -3,9 +3,12 @@ import 'package:get/get.dart';
 import '../models/client_model.dart';
 import '../../../services/database_service.dart';
 import '../controllers/client_dashboard_controller.dart';
+import '../../../core/error_handler.dart';
+import '../../../core/validation.dart';
 
 class AddClientController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
+  final ErrorHandler _errorHandler = ErrorHandler();
   
   final TextEditingController nameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -64,43 +67,33 @@ class AddClientController extends GetxController {
       await clientDashboardController.loadClients();
       
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Client added successfully',
-        backgroundColor: Colors.green[100],
-        colorText: Colors.green[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showSuccessSnackbar('Client added successfully');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to add client: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     } finally {
       isLoading.value = false;
     }
   }
 
   bool _validateForm() {
-    if (nameController.text.trim().isEmpty) {
-      Get.snackbar(
-        'Validation Error',
-        'Please enter the client name',
-        backgroundColor: Colors.orange[100],
-        colorText: Colors.orange[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+    final nameError = Validation.validateName(nameController.text);
+    if (nameError != null) {
+      _errorHandler.showWarningSnackbar(nameError);
       return false;
     }
+    
+    final phoneError = Validation.validatePhone(phoneController.text);
+    if (phoneError != null) {
+      _errorHandler.showWarningSnackbar(phoneError);
+      return false;
+    }
+    
+    final notesError = Validation.validateNotes(medicalNotesController.text);
+    if (notesError != null) {
+      _errorHandler.showWarningSnackbar(notesError);
+      return false;
+    }
+    
     return true;
   }
 } 

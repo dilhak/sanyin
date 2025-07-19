@@ -4,9 +4,11 @@ import '../models/care_log_model.dart';
 import '../../../services/database_service.dart';
 import '../../client/models/client_model.dart';
 import '../../../widgets/universal_popup.dart';
+import '../../../core/error_handler.dart';
 
 class CareLogHistoryController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
+  final ErrorHandler _errorHandler = ErrorHandler();
   final RxList<CareLog> careLogs = <CareLog>[].obs;
   final RxBool isLoading = false.obs;
   final Rx<Client?> selectedClient = Rx<Client?>(null);
@@ -48,15 +50,7 @@ class CareLogHistoryController extends GetxController {
       final logs = await _databaseService.getAllCareLogs();
       careLogs.value = logs;
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load care logs: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     } finally {
       isLoading.value = false;
     }
@@ -138,25 +132,9 @@ class CareLogHistoryController extends GetxController {
     try {
       await _databaseService.deleteCareLog(log.id!);
       await loadCareLogs();
-      Get.snackbar(
-        'Success',
-        'Care log deleted successfully',
-        backgroundColor: Colors.green[100],
-        colorText: Colors.green[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showSuccessSnackbar('Care log deleted successfully');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to delete care log: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     }
   }
 
@@ -164,25 +142,9 @@ class CareLogHistoryController extends GetxController {
     try {
       // Note: This would require an updateCareLog method in DatabaseService
       // For now, we'll just show a success message
-      Get.snackbar(
-        'Success',
-        'Care log updated successfully',
-        backgroundColor: Colors.green[100],
-        colorText: Colors.green[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showSuccessSnackbar('Care log updated successfully');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to update care log: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     }
   }
 

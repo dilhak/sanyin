@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import '../core/error_handler.dart';
 
 class PhotoService {
   static final PhotoService _instance = PhotoService._internal();
@@ -16,7 +17,10 @@ class PhotoService {
       // Request camera permission
       final status = await Permission.camera.request();
       if (status != PermissionStatus.granted) {
-        throw Exception('Camera permission denied');
+        throw AppError(
+          message: 'Camera permission denied',
+          type: ErrorType.permission,
+        );
       }
 
       final XFile? image = await _picker.pickImage(
@@ -31,7 +35,12 @@ class PhotoService {
       }
       return null;
     } catch (e) {
-      rethrow;
+      if (e is AppError) rethrow;
+      throw AppError(
+        message: 'Failed to take photo',
+        type: ErrorType.file,
+        originalError: e,
+      );
     }
   }
 
@@ -40,7 +49,10 @@ class PhotoService {
       // Request storage permission
       final status = await Permission.photos.request();
       if (status != PermissionStatus.granted) {
-        throw Exception('Gallery permission denied');
+        throw AppError(
+          message: 'Gallery permission denied',
+          type: ErrorType.permission,
+        );
       }
 
       final XFile? image = await _picker.pickImage(
@@ -55,7 +67,12 @@ class PhotoService {
       }
       return null;
     } catch (e) {
-      rethrow;
+      if (e is AppError) rethrow;
+      throw AppError(
+        message: 'Failed to pick image from gallery',
+        type: ErrorType.file,
+        originalError: e,
+      );
     }
   }
 
@@ -75,7 +92,11 @@ class PhotoService {
       
       return savedImage.path;
     } catch (e) {
-      throw Exception('Failed to save image: $e');
+      throw AppError(
+        message: 'Failed to save image',
+        type: ErrorType.file,
+        originalError: e,
+      );
     }
   }
 

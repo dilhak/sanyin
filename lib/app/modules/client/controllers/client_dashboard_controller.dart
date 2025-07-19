@@ -3,11 +3,13 @@ import 'package:get/get.dart';
 import '../models/client_model.dart';
 import '../../../routes/app_pages.dart';
 import '../../../services/database_service.dart';
+import '../../../core/error_handler.dart';
 
 class ClientDashboardController extends GetxController {
   final RxList<Client> clients = <Client>[].obs;
   final RxBool isLoading = false.obs;
   final DatabaseService _databaseService = DatabaseService();
+  final ErrorHandler _errorHandler = ErrorHandler();
 
   @override
   void onInit() {
@@ -21,15 +23,7 @@ class ClientDashboardController extends GetxController {
       final clientsList = await _databaseService.getClients();
       clients.value = clientsList;
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to load clients: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     } finally {
       isLoading.value = false;
     }
@@ -65,25 +59,9 @@ class ClientDashboardController extends GetxController {
     try {
       await _databaseService.deleteClient(client.id!);
       await loadClients();
-      Get.snackbar(
-        'Success',
-        'Client deleted successfully',
-        backgroundColor: Colors.green[100],
-        colorText: Colors.green[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showSuccessSnackbar('Client deleted successfully');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to delete client: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     }
   }
 } 

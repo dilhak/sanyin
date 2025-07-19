@@ -6,11 +6,13 @@ import '../../../services/database_service.dart';
 import '../controllers/care_log_history_controller.dart';
 import '../../../widgets/universal_popup.dart';
 import '../../../widgets/responsive_bottom_drawer.dart';
+import '../../../core/error_handler.dart';
 
 class QuickActionsController extends GetxController {
   late Client client;
   String get clientName => client.name;
   final DatabaseService _databaseService = DatabaseService();
+  final ErrorHandler _errorHandler = ErrorHandler();
 
   @override
   void onInit() {
@@ -327,25 +329,9 @@ class QuickActionsController extends GetxController {
         // Care log history controller not found, that's okay
       }
       
-      Get.snackbar(
-        'Success',
-        'Care activity logged successfully',
-        backgroundColor: Colors.green[100],
-        colorText: Colors.green[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showSuccessSnackbar('Care activity logged successfully');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to log care activity: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     }
   }
 

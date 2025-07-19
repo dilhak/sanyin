@@ -5,10 +5,12 @@ import '../../../services/database_service.dart';
 import '../../../services/photo_service.dart';
 import '../../client/models/client_model.dart';
 import '../controllers/care_log_history_controller.dart';
+import '../../../core/error_handler.dart';
 
 class PhotoCaptureController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
   final PhotoService _photoService = PhotoService();
+  final ErrorHandler _errorHandler = ErrorHandler();
   
   final TextEditingController notesController = TextEditingController();
   final FocusNode notesFocusNode = FocusNode();
@@ -38,26 +40,10 @@ class PhotoCaptureController extends GetxController {
       if (photoPath != null) {
         selectedPhotoPath.value = photoPath;
       } else {
-        Get.snackbar(
-          'Cancelled',
-          'Photo capture was cancelled',
-          backgroundColor: Colors.orange[100],
-          colorText: Colors.orange[800],
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(16),
-          borderRadius: 12,
-        );
+        _errorHandler.showWarningSnackbar('Photo capture was cancelled');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to take photo: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     } finally {
       isLoading.value = false;
     }
@@ -71,26 +57,10 @@ class PhotoCaptureController extends GetxController {
       if (photoPath != null) {
         selectedPhotoPath.value = photoPath;
       } else {
-        Get.snackbar(
-          'Cancelled',
-          'Photo selection was cancelled',
-          backgroundColor: Colors.orange[100],
-          colorText: Colors.orange[800],
-          snackPosition: SnackPosition.BOTTOM,
-          margin: const EdgeInsets.all(16),
-          borderRadius: 12,
-        );
+        _errorHandler.showWarningSnackbar('Photo selection was cancelled');
       }
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to pick photo: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     } finally {
       isLoading.value = false;
     }
@@ -98,15 +68,7 @@ class PhotoCaptureController extends GetxController {
 
   Future<void> savePhoto() async {
     if (selectedPhotoPath.value.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Please select a photo first',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showWarningSnackbar('Please select a photo first');
       return;
     }
 
@@ -134,25 +96,9 @@ class PhotoCaptureController extends GetxController {
       }
       
       Get.back();
-      Get.snackbar(
-        'Success',
-        'Photo saved successfully',
-        backgroundColor: Colors.green[100],
-        colorText: Colors.green[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showSuccessSnackbar('Photo saved successfully');
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to save photo: $e',
-        backgroundColor: Colors.red[100],
-        colorText: Colors.red[800],
-        snackPosition: SnackPosition.BOTTOM,
-        margin: const EdgeInsets.all(16),
-        borderRadius: 12,
-      );
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     } finally {
       isLoading.value = false;
     }

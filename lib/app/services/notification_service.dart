@@ -2,6 +2,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 import '../models/reminder_model.dart';
+import '../core/error_handler.dart';
 
 class NotificationService {
   static final NotificationService _instance = NotificationService._internal();
@@ -11,40 +12,56 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications = FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
-    tz.initializeTimeZones();
+    try {
+      tz.initializeTimeZones();
 
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+      const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+      const iosSettings = DarwinInitializationSettings(
+        requestAlertPermission: true,
+        requestBadgePermission: true,
+        requestSoundPermission: true,
+      );
 
-    const initSettings = InitializationSettings(
-      android: androidSettings,
-      iOS: iosSettings,
-    );
+      const initSettings = InitializationSettings(
+        android: androidSettings,
+        iOS: iosSettings,
+      );
 
-    await _notifications.initialize(initSettings);
-    
-    // Create notification channel for Android
-    await _createNotificationChannel();
+      await _notifications.initialize(initSettings);
+      
+      // Create notification channel for Android
+      await _createNotificationChannel();
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to initialize notifications',
+        type: ErrorType.unknown,
+        originalError: e,
+      );
+    }
   }
 
   Future<void> _createNotificationChannel() async {
-    const androidChannel = AndroidNotificationChannel(
-      'reminders_channel',
-      'Reminders',
-      description: 'Care reminders for clients',
-      importance: Importance.high,
-      playSound: true,
-      enableVibration: true,
-      enableLights: true,
-    );
+    try {
+      const androidChannel = AndroidNotificationChannel(
+        'reminders_channel',
+        'Reminders',
+        description: 'Care reminders for clients',
+        importance: Importance.high,
+        playSound: true,
+        enableVibration: true,
+        enableLights: true,
+      );
 
-    await _notifications
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(androidChannel);
+      await _notifications
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(androidChannel);
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to create notification channel',
+        type: ErrorType.unknown,
+        originalError: e,
+      );
+    }
   }
 
   Future<bool> _requestPermissions() async {
@@ -63,8 +80,10 @@ class NotificationService {
       // Request permissions first
       final granted = await _requestPermissions();
       if (!granted) {
-        print('Notification permission not granted');
-        return;
+        throw AppError(
+          message: 'Notification permission not granted',
+          type: ErrorType.permission,
+        );
       }
       
       final androidDetails = AndroidNotificationDetails(
@@ -97,8 +116,12 @@ class NotificationService {
       
       print('Reminder scheduled successfully');
     } catch (e) {
-      print('Error scheduling reminder: $e');
-      rethrow;
+      if (e is AppError) rethrow;
+      throw AppError(
+        message: 'Failed to schedule reminder',
+        type: ErrorType.unknown,
+        originalError: e,
+      );
     }
   }
 
@@ -133,9 +156,11 @@ class NotificationService {
       print('System notifications enabled: $enabled');
       
       final channels = await androidPlugin.getNotificationChannels();
-      print('Available channels: ${channels.length}');
-      for (var channel in channels) {
-        print('Channel: ${channel.id} - ${channel.name} - Importance: ${channel.importance}');
+      print('Available channels: ${channels?.length ?? 0}');
+      if (channels != null) {
+        for (var channel in channels) {
+          print('Channel: ${channel.id} - ${channel.name} - Importance: ${channel.importance}');
+        }
       }
       
       final pending = await getPendingNotifications();
@@ -167,9 +192,11 @@ class NotificationService {
       final androidPlugin = _notifications.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
       if (androidPlugin != null) {
         final channels = await androidPlugin.getNotificationChannels();
-        print('Available channels: ${channels.length}');
-        for (var channel in channels) {
-          print('Channel: ${channel.id} - ${channel.name}');
+        print('Available channels: ${channels?.length ?? 0}');
+        if (channels != null) {
+          for (var channel in channels) {
+            print('Channel: ${channel.id} - ${channel.name}');
+          }
         }
       }
 
@@ -184,7 +211,6 @@ class NotificationService {
         enableVibration: true,
         enableLights: true,
         showWhen: true,
-        enableShowBadge: true,
       );
 
       final notificationDetails = NotificationDetails(android: androidDetails);

@@ -3,6 +3,8 @@ import 'package:path/path.dart';
 import '../modules/client/models/client_model.dart';
 import '../modules/care_log/models/care_log_model.dart';
 import '../models/reminder_model.dart';
+import '../core/error_handler.dart';
+import '../core/retry_mechanism.dart';
 
 class DatabaseService {
   static final DatabaseService _instance = DatabaseService._internal();
@@ -14,6 +16,8 @@ class DatabaseService {
 
   DatabaseService._internal();
 
+  final RetryMechanism _retryMechanism = RetryMechanism();
+
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDatabase();
@@ -21,13 +25,21 @@ class DatabaseService {
   }
 
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'sanyin.db');
-    return await openDatabase(
-      path,
-      version: 2,
-      onCreate: _onCreate,
-      onUpgrade: _onUpgrade,
-    );
+    try {
+      String path = join(await getDatabasesPath(), 'sanyin.db');
+      return await openDatabase(
+        path,
+        version: 2,
+        onCreate: _onCreate,
+        onUpgrade: _onUpgrade,
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to initialize database',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   Future<void> _onCreate(Database db, int version) async {
@@ -98,133 +110,260 @@ class DatabaseService {
 
   // Client operations
   Future<int> insertClient(Client client) async {
-    final db = await database;
-    return await db.insert('clients', client.toMap());
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          return await db.insert('clients', client.toMap());
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to add client',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Add client',
+    );
   }
 
   Future<List<Client>> getClients() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('clients', orderBy: 'name ASC');
-    return List.generate(maps.length, (i) => Client.fromMap(maps[i]));
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          final List<Map<String, dynamic>> maps = await db.query('clients', orderBy: 'name ASC');
+          return List.generate(maps.length, (i) => Client.fromMap(maps[i]));
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to load clients',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Load clients',
+    );
   }
 
   Future<Client?> getClient(int id) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'clients',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-    if (maps.isNotEmpty) {
-      return Client.fromMap(maps.first);
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'clients',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        return Client.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load client details',
+        type: ErrorType.database,
+        originalError: e,
+      );
     }
-    return null;
   }
 
   Future<int> updateClient(Client client) async {
-    final db = await database;
-    return await db.update(
-      'clients',
-      client.toMap(),
-      where: 'id = ?',
-      whereArgs: [client.id],
-    );
+    try {
+      final db = await database;
+      return await db.update(
+        'clients',
+        client.toMap(),
+        where: 'id = ?',
+        whereArgs: [client.id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to update client',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   Future<int> deleteClient(int id) async {
-    final db = await database;
-    // First delete related care logs
-    await db.delete(
-      'care_logs',
-      where: 'clientId = ?',
-      whereArgs: [id],
-    );
-    // Then delete the client
-    return await db.delete(
-      'clients',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    try {
+      final db = await database;
+      // First delete related care logs
+      await db.delete(
+        'care_logs',
+        where: 'clientId = ?',
+        whereArgs: [id],
+      );
+      // Then delete the client
+      return await db.delete(
+        'clients',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to delete client',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   // Care log operations
   Future<int> insertCareLog(CareLog careLog) async {
-    final db = await database;
-    return await db.insert('care_logs', careLog.toMap());
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          return await db.insert('care_logs', careLog.toMap());
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to save care log',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Save care log',
+    );
   }
 
   Future<List<CareLog>> getCareLogsForClient(int clientId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'care_logs',
-      where: 'clientId = ?',
-      whereArgs: [clientId],
-      orderBy: 'timestamp DESC',
-    );
-    return List.generate(maps.length, (i) => CareLog.fromMap(maps[i]));
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'care_logs',
+        where: 'clientId = ?',
+        whereArgs: [clientId],
+        orderBy: 'timestamp DESC',
+      );
+      return List.generate(maps.length, (i) => CareLog.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load care logs',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   Future<List<CareLog>> getAllCareLogs() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'care_logs',
-      orderBy: 'timestamp DESC',
-    );
-    return List.generate(maps.length, (i) => CareLog.fromMap(maps[i]));
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'care_logs',
+        orderBy: 'timestamp DESC',
+      );
+      return List.generate(maps.length, (i) => CareLog.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load care logs',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   Future<int> deleteCareLog(int id) async {
-    final db = await database;
-    return await db.delete(
-      'care_logs',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    try {
+      final db = await database;
+      return await db.delete(
+        'care_logs',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to delete care log',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   // Reminder operations
   Future<int> insertReminder(Reminder reminder) async {
-    final db = await database;
-    return await db.insert('reminders', reminder.toMap());
+    try {
+      final db = await database;
+      return await db.insert('reminders', reminder.toMap());
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to add reminder',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   Future<List<Reminder>> getRemindersForClient(int clientId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'reminders',
-      where: 'clientId = ?',
-      whereArgs: [clientId],
-      orderBy: 'scheduledTime ASC',
-    );
-    return List.generate(maps.length, (i) => Reminder.fromMap(maps[i]));
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'reminders',
+        where: 'clientId = ?',
+        whereArgs: [clientId],
+        orderBy: 'scheduledTime ASC',
+      );
+      return List.generate(maps.length, (i) => Reminder.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load reminders',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   Future<List<Reminder>> getAllReminders() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'reminders',
-      orderBy: 'scheduledTime ASC',
-    );
-    return List.generate(maps.length, (i) => Reminder.fromMap(maps[i]));
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'reminders',
+        orderBy: 'scheduledTime ASC',
+      );
+      return List.generate(maps.length, (i) => Reminder.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load reminders',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   Future<int> updateReminder(Reminder reminder) async {
-    final db = await database;
-    return await db.update(
-      'reminders',
-      reminder.toMap(),
-      where: 'id = ?',
-      whereArgs: [reminder.id],
-    );
+    try {
+      final db = await database;
+      return await db.update(
+        'reminders',
+        reminder.toMap(),
+        where: 'id = ?',
+        whereArgs: [reminder.id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to update reminder',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   Future<int> deleteReminder(int id) async {
-    final db = await database;
-    return await db.delete(
-      'reminders',
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    try {
+      final db = await database;
+      return await db.delete(
+        'reminders',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to delete reminder',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 
   // Database utilities
