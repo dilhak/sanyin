@@ -329,7 +329,8 @@ class QuickActionsController extends GetxController {
         // Care log history controller not found, that's okay
       }
       
-      _errorHandler.showSuccessSnackbar('Care activity logged successfully');
+      // Show a brief success message and stay on the quick actions screen
+      _errorHandler.showSuccessSnackbar('Activity logged successfully');
     } catch (e) {
       _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     }

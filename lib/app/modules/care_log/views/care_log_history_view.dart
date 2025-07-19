@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'dart:io';
 import '../controllers/care_log_history_controller.dart';
 import '../models/care_log_model.dart';
 
@@ -10,66 +9,31 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Care Log History'),
+        title: const Text(
+          'Diary',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.blue[600]),
-          onPressed: () => Get.back(),
-        ),
         actions: [
-          IconButton(
-            icon: Icon(Icons.filter_list, color: Colors.blue[600]),
-            onPressed: controller.showFilterOptions,
-          ),
-          PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: Colors.blue[600]),
-            onSelected: (value) {
-              switch (value) {
-                case 'export':
-                  Get.snackbar(
-                    'Info',
-                    'Export functionality coming soon',
-                    backgroundColor: Colors.blue[100],
-                    colorText: Colors.blue[800],
-                  );
-                  break;
-                case 'settings':
-                  Get.snackbar(
-                    'Info',
-                    'Settings coming soon',
-                    backgroundColor: Colors.blue[100],
-                    colorText: Colors.blue[800],
-                  );
-                  break;
-              }
-            },
-            itemBuilder: (context) => [
-              const PopupMenuItem(
-                value: 'export',
-                child: Row(
-                  children: [
-                    Icon(Icons.download),
-                    SizedBox(width: 8),
-                    Text('Export Data'),
-                  ],
-                ),
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text(
+              'Done',
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
-              const PopupMenuItem(
-                value: 'settings',
-                child: Row(
-                  children: [
-                    Icon(Icons.settings),
-                    SizedBox(width: 8),
-                    Text('Settings'),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),
@@ -84,19 +48,120 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
 
         return RefreshIndicator(
           onRefresh: controller.loadCareLogs,
-          child: ListView.builder(
+          child: ListView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.all(16),
-            itemCount: controller.groupedLogs.length,
-            itemBuilder: (context, index) {
-              final date = controller.groupedLogs.keys.elementAt(index);
-              final logs = controller.groupedLogs[date]!;
-              return _buildDateSection(date, logs);
-            },
+            padding: const EdgeInsets.all(20),
+            children: [
+              _buildHeaderSection(),
+              const SizedBox(height: 24),
+              ...controller.groupedLogs.entries.map((entry) {
+                final date = entry.key;
+                final logs = entry.value;
+                return _buildDateSection(date, logs);
+              }).toList(),
+            ],
           ),
         );
       }),
     );
+  }
+
+  Widget _buildHeaderSection() {
+    return Row(
+      children: [
+        // Date card
+        Container(
+          width: 80,
+          height: 100,
+          decoration: BoxDecoration(
+            color: Colors.blue,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.blue.withValues(alpha: 0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _getDayOfWeek(DateTime.now()),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                DateTime.now().day.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              Text(
+                controller.careLogs.length.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 20),
+        // Title section
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Circular icon
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.blue.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.calendar_today_rounded,
+                  color: Colors.blue,
+                  size: 30,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Activity Diary',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Complete care history',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey[600],
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _getDayOfWeek(DateTime date) {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return days[date.weekday - 1];
   }
 
   Widget _buildEmptyState() {
@@ -104,26 +169,54 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.history,
-            size: 80,
-            color: Colors.grey[400],
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.history_rounded,
+              size: 60,
+              color: Colors.blue[600],
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Text(
             'No Care Logs Yet',
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey[600],
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
+              color: Colors.grey[800],
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             'Care activities will appear here once logged',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.grey[500],
+              color: Colors.grey[600],
+              height: 1.4,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 32),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.2)),
+            ),
+            child: Text(
+              'Start logging care activities to see them here',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.blue[700],
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
@@ -133,59 +226,40 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
 
   Widget _buildDateSection(DateTime date, List<CareLog> logs) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
+      margin: const EdgeInsets.only(bottom: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildDateHeader(date),
-          const SizedBox(height: 12),
+          // Date header
+          Text(
+            _formatDate(date),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          const SizedBox(height: 16),
           ...logs.map((log) => _buildLogCard(log)).toList(),
         ],
       ),
     );
   }
 
-  Widget _buildDateHeader(DateTime date) {
-    final today = DateTime.now();
-    final yesterday = today.subtract(const Duration(days: 1));
-    
-    String dateText;
-    if (date.year == today.year && date.month == today.month && date.day == today.day) {
-      dateText = 'Today';
-    } else if (date.year == yesterday.year && date.month == yesterday.month && date.day == yesterday.day) {
-      dateText = 'Yesterday';
-    } else {
-      dateText = '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}';
-    }
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        dateText,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: Colors.blue[700],
-        ),
-      ),
-    );
-  }
 
   Widget _buildLogCard(CareLog log) {
+    final activityColor = _getActivityColor(log.activityType);
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.1),
-            spreadRadius: 1,
-            blurRadius: 4,
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -194,125 +268,70 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
         color: Colors.transparent,
         child: InkWell(
           onTap: () => controller.showLogActions(log),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: [
-                // Header with icon, action, and time
-                Row(
-                  children: [
-                    _buildActivityIcon(log.activityType),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                // Activity icon
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: activityColor,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    _getActivityIcon(log.activityType),
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title and time
+                      Row(
                         children: [
-                          Text(
-                            log.action ?? 'No action',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (log.subAction != null && !_isSubActionRedundant(log))
-                            Text(
-                              log.subAction!,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[600],
+                          Expanded(
+                            child: Text(
+                              _getActivityTypeTitle(log.activityType).toUpperCase(),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
                               ),
                             ),
-                        ],
-                      ),
-                    ),
-                    Text(
-                      _formatTime(log.timestamp),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-                
-                // Details section
-                if (log.details != null && log.details!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.blue[200]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.info_outline, color: Colors.blue[600], size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            log.details!,
+                          ),
+                          Text(
+                            _formatTime(log.timestamp),
                             style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.blue[700],
+                              fontSize: 12,
+                              color: Colors.grey[600],
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                
-                // Notes section
-                if (log.notes != null && log.notes!.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.note, color: Colors.grey[600], size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            log.notes!,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                
-                // Photo section
-                if (log.photoPath != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 120,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.grey[200]!),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.file(
-                        File(log.photoPath!),
-                        fit: BoxFit.cover,
+                        ],
                       ),
-                    ),
+                      // Description (details without activity type prefix)
+                      if (log.details != null && log.details!.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          _getCleanDescription(log.details!, log.activityType),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ],
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -321,91 +340,142 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
     );
   }
 
-  Widget _buildActivityIcon(CareActivityType activityType) {
-    IconData icon;
-    Color color;
 
+
+  Color _getActivityColor(CareActivityType activityType) {
     switch (activityType) {
       case CareActivityType.medication:
-        icon = Icons.medication;
-        color = Colors.red[600]!;
-        break;
+        return Colors.red[600]!;
       case CareActivityType.toileting:
-        icon = Icons.wc;
-        color = Colors.orange[600]!;
-        break;
+        return Colors.orange[600]!;
       case CareActivityType.hydration:
-        icon = Icons.water_drop;
-        color = Colors.blue[600]!;
-        break;
+        return Colors.blue[600]!;
       case CareActivityType.meal:
-        icon = Icons.restaurant;
-        color = Colors.green[600]!;
-        break;
+        return Colors.green[600]!;
       case CareActivityType.behavior:
-        icon = Icons.psychology;
-        color = Colors.purple[600]!;
-        break;
+        return Colors.purple[600]!;
       case CareActivityType.photo:
-        icon = Icons.camera_alt;
-        color = Colors.teal[600]!;
-        break;
+        return Colors.teal[600]!;
       case CareActivityType.note:
-        icon = Icons.note;
-        color = Colors.indigo[600]!;
-        break;
+        return Colors.indigo[600]!;
       case CareActivityType.pain:
-        icon = Icons.sick;
-        color = Colors.red[600]!;
-        break;
+        return Colors.red[600]!;
       case CareActivityType.vitals:
-        icon = Icons.favorite;
-        color = Colors.pink[600]!;
-        break;
+        return Colors.pink[600]!;
       case CareActivityType.location:
-        icon = Icons.location_on;
-        color = Colors.teal[600]!;
-        break;
+        return Colors.teal[600]!;
     }
+  }
 
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Icon(icon, color: color, size: 20),
-    );
+  String _getActivityTypeTitle(CareActivityType activityType) {
+    switch (activityType) {
+      case CareActivityType.medication:
+        return 'Medication';
+      case CareActivityType.toileting:
+        return 'Toileting';
+      case CareActivityType.hydration:
+        return 'Hydration';
+      case CareActivityType.meal:
+        return 'Meal';
+      case CareActivityType.behavior:
+        return 'Behavior';
+      case CareActivityType.photo:
+        return 'Photo';
+      case CareActivityType.note:
+        return 'Note';
+      case CareActivityType.pain:
+        return 'Pain';
+      case CareActivityType.vitals:
+        return 'Vitals';
+      case CareActivityType.location:
+        return 'Location';
+    }
+  }
+
+  String _getCleanDescription(String details, CareActivityType activityType) {
+    // Remove common prefixes that repeat the activity type
+    String cleanDetails = details;
+    
+    // Remove "Medicine: " prefix for medication
+    if (activityType == CareActivityType.medication && details.toLowerCase().startsWith('medicine:')) {
+      cleanDetails = details.substring(details.indexOf(':') + 1).trim();
+    }
+    
+    // Remove "Behavior: " prefix for behavior
+    if (activityType == CareActivityType.behavior && details.toLowerCase().startsWith('behavior:')) {
+      cleanDetails = details.substring(details.indexOf(':') + 1).trim();
+    }
+    
+    // Remove "Location: " prefix for location
+    if (activityType == CareActivityType.location && details.toLowerCase().startsWith('location:')) {
+      cleanDetails = details.substring(details.indexOf(':') + 1).trim();
+    }
+    
+    // Remove "Note: " prefix for notes
+    if (activityType == CareActivityType.note && details.toLowerCase().startsWith('note:')) {
+      cleanDetails = details.substring(details.indexOf(':') + 1).trim();
+    }
+    
+    // Remove "Meal: " prefix for meals
+    if (activityType == CareActivityType.meal && details.toLowerCase().startsWith('meal:')) {
+      cleanDetails = details.substring(details.indexOf(':') + 1).trim();
+    }
+    
+    // Remove "Hydration: " prefix for hydration
+    if (activityType == CareActivityType.hydration && details.toLowerCase().startsWith('hydration:')) {
+      cleanDetails = details.substring(details.indexOf(':') + 1).trim();
+    }
+    
+    // Remove "Toileting: " prefix for toileting
+    if (activityType == CareActivityType.toileting && details.toLowerCase().startsWith('toileting:')) {
+      cleanDetails = details.substring(details.indexOf(':') + 1).trim();
+    }
+    
+    return cleanDetails;
+  }
+
+  IconData _getActivityIcon(CareActivityType activityType) {
+    switch (activityType) {
+      case CareActivityType.medication:
+        return Icons.medication_rounded;
+      case CareActivityType.toileting:
+        return Icons.wc_rounded;
+      case CareActivityType.hydration:
+        return Icons.water_drop_rounded;
+      case CareActivityType.meal:
+        return Icons.restaurant_rounded;
+      case CareActivityType.behavior:
+        return Icons.psychology_rounded;
+      case CareActivityType.photo:
+        return Icons.camera_alt_rounded;
+      case CareActivityType.note:
+        return Icons.note_rounded;
+      case CareActivityType.pain:
+        return Icons.sick_rounded;
+      case CareActivityType.vitals:
+        return Icons.favorite_rounded;
+      case CareActivityType.location:
+        return Icons.location_on_rounded;
+    }
+  }
+
+
+
+  String _formatDate(DateTime date) {
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
   String _formatTime(DateTime time) {
-    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+    final hour = time.hour;
+    final minute = time.minute;
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    return '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
   }
 
-  bool _isSubActionRedundant(CareLog log) {
-    if (log.subAction == null || log.details == null) return false;
-    
-    // Check if subAction is already included in details
-    final details = log.details!.toLowerCase();
-    final subAction = log.subAction!.toLowerCase();
-    
-    // Common patterns where subAction is redundant
-    if (details.contains(subAction)) return true;
-    
-    // Check for specific patterns like "Medicine: X - given" where X is the subAction
-    if (log.activityType == CareActivityType.medication) {
-      if (details.contains('medicine: $subAction -') || details.contains('medicine: $subAction ')) {
-        return true;
-      }
-    }
-    
-    // Check for meal patterns like "Meal: breakfast - Ate All" where "Ate All" is subAction
-    if (log.activityType == CareActivityType.meal) {
-      if (details.contains('meal:') && details.contains(subAction)) {
-        return true;
-      }
-    }
-    
-    return false;
-  }
+
 } 
