@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/client_model.dart';
 import '../../../services/database_service.dart';
-import '../controllers/client_dashboard_controller.dart';
 import '../../../core/error_handler.dart';
 import '../../../core/validation.dart';
 
-class AddClientController extends GetxController {
+class EditClientController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
   final ErrorHandler _errorHandler = ErrorHandler();
   
@@ -17,7 +16,16 @@ class AddClientController extends GetxController {
   final FocusNode nameFocusNode = FocusNode();
   final FocusNode addressFocusNode = FocusNode();
 
+  late Client client;
   final RxBool isLoading = false.obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    client = Get.arguments as Client;
+    nameController.text = client.name;
+    addressController.text = client.address ?? '';
+  }
 
   @override
   void onClose() {
@@ -31,28 +39,28 @@ class AddClientController extends GetxController {
     super.onClose();
   }
 
-  Future<void> saveClient() async {
+  Future<void> updateClient() async {
     if (!_validateForm()) {
       return;
     }
 
     isLoading.value = true;
     try {
-      final client = Client(
+      final updatedClient = Client(
+        id: client.id,
         name: nameController.text.trim(),
         address: addressController.text.trim().isEmpty ? null : addressController.text.trim(),
-        createdAt: DateTime.now(),
+        phoneNumber: client.phoneNumber,
+        emergencyContact: client.emergencyContact,
+        medicalNotes: client.medicalNotes,
+        createdAt: client.createdAt,
         updatedAt: DateTime.now(),
       );
 
-      await _databaseService.insertClient(client);
-      
-      // Refresh the client dashboard
-      final clientDashboardController = Get.find<ClientDashboardController>();
-      await clientDashboardController.loadClients();
+      await _databaseService.updateClient(updatedClient);
       
       Get.back();
-      _errorHandler.showSuccessSnackbar('Client added successfully');
+      _errorHandler.showSuccessSnackbar('Client updated successfully');
     } catch (e) {
       _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     } finally {

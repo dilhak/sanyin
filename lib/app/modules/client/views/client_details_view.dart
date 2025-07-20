@@ -57,124 +57,127 @@ class ClientDetailsView extends GetView<ClientDetailsController> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Quick actions header
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-              child: Column(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Quick actions header
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Quick Actions',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Tap to log activities for ${controller.client.name}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              // Quick actions grid
+              GridView.count(
+                padding: const EdgeInsets.all(16),
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.9,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  const Text(
-                    'Quick Actions',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
+                  _buildActionCard(
+                    icon: Icons.favorite,
+                    title: 'Vitals',
+                    subtitle: 'Blood pressure, pulse, etc.',
+                    color: Colors.pink,
+                    onTap: () => controller.showVitalsForm(),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Tap to log activities for ${controller.client.name}',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                  _buildActionCard(
+                    icon: Icons.sick,
+                    title: 'Pain & Discomfort',
+                    subtitle: 'Pain assessment',
+                    color: Colors.red,
+                    onTap: () => controller.showPainActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.medication,
+                    title: 'Medication',
+                    subtitle: 'Log medication status',
+                    color: Colors.green,
+                    onTap: () => controller.showMedicationActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.location_on,
+                    title: 'Location & Presence',
+                    subtitle: 'Where is the client?',
+                    color: Colors.teal,
+                    onTap: () => controller.showLocationActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.wc,
+                    title: 'Toileting',
+                    subtitle: 'Bathroom & stool',
+                    color: Colors.orange,
+                    onTap: () => controller.showToiletingActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.restaurant,
+                    title: 'Meals',
+                    subtitle: 'Nutrition & meals',
+                    color: Colors.green,
+                    onTap: () => controller.showMealActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.local_drink,
+                    title: 'Hydration',
+                    subtitle: 'Fluid intake',
+                    color: Colors.blue,
+                    onTap: () => controller.showHydrationActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.psychology,
+                    title: 'Behavior/Mood',
+                    subtitle: 'Behavior & mood',
+                    color: Colors.purple,
+                    onTap: () => controller.showBehaviorActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.note,
+                    title: 'Note',
+                    subtitle: 'General notes',
+                    color: Colors.blue,
+                    onTap: () => controller.showNoteDialog(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.camera_alt,
+                    title: 'Photo/Attachment',
+                    subtitle: 'Photo documentation',
+                    color: Colors.grey,
+                    onTap: () => controller.takePhoto(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.history,
+                    title: 'Care History',
+                    subtitle: 'View care logs',
+                    color: Colors.indigo,
+                    onTap: () => controller.openCareHistory(),
                   ),
                 ],
               ),
-            ),
-            // Quick actions grid
-            GridView.count(
-              padding: const EdgeInsets.all(16),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.9,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildActionCard(
-                  icon: Icons.favorite,
-                  title: 'Vitals',
-                  subtitle: 'Blood pressure, pulse, etc.',
-                  color: Colors.pink,
-                  onTap: () => controller.showVitalsForm(),
-                ),
-                _buildActionCard(
-                  icon: Icons.sick,
-                  title: 'Pain & Discomfort',
-                  subtitle: 'Pain assessment',
-                  color: Colors.red,
-                  onTap: () => controller.showPainActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.medication,
-                  title: 'Medication',
-                  subtitle: 'Log medication status',
-                  color: Colors.green,
-                  onTap: () => controller.showMedicationActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.location_on,
-                  title: 'Location & Presence',
-                  subtitle: 'Where is the client?',
-                  color: Colors.teal,
-                  onTap: () => controller.showLocationActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.wc,
-                  title: 'Toileting',
-                  subtitle: 'Bathroom & stool',
-                  color: Colors.orange,
-                  onTap: () => controller.showToiletingActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.restaurant,
-                  title: 'Meals',
-                  subtitle: 'Nutrition & meals',
-                  color: Colors.green,
-                  onTap: () => controller.showMealActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.local_drink,
-                  title: 'Hydration',
-                  subtitle: 'Fluid intake',
-                  color: Colors.blue,
-                  onTap: () => controller.showHydrationActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.psychology,
-                  title: 'Behavior/Mood',
-                  subtitle: 'Behavior & mood',
-                  color: Colors.purple,
-                  onTap: () => controller.showBehaviorActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.note,
-                  title: 'Note',
-                  subtitle: 'General notes',
-                  color: Colors.blue,
-                  onTap: () => controller.showNoteDialog(),
-                ),
-                _buildActionCard(
-                  icon: Icons.camera_alt,
-                  title: 'Photo/Attachment',
-                  subtitle: 'Photo documentation',
-                  color: Colors.grey,
-                  onTap: () => controller.takePhoto(),
-                ),
-                _buildActionCard(
-                  icon: Icons.history,
-                  title: 'Care History',
-                  subtitle: 'View care logs',
-                  color: Colors.indigo,
-                  onTap: () => controller.openCareHistory(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 100), // Bottom padding for bottom navigation
-          ],
+              const SizedBox(height: 100), // Bottom padding for bottom navigation
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: Container(
@@ -190,13 +193,16 @@ class ClientDetailsView extends GetView<ClientDetailsController> {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: 0,
+          currentIndex: 1,
           onTap: (index) {
             switch (index) {
               case 0:
-                // Already on clients page, do nothing
+                Get.toNamed('/home');
                 break;
               case 1:
+                Get.toNamed('/client/dashboard');
+                break;
+              case 2:
                 Get.snackbar(
                   'Info',
                   'Settings coming soon',
@@ -211,6 +217,10 @@ class ClientDetailsView extends GetView<ClientDetailsController> {
           selectedItemColor: Colors.blue[600],
           unselectedItemColor: Colors.grey[600],
           items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
               label: 'Clients',

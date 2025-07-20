@@ -84,102 +84,105 @@ class QuickActionsView extends GetView<QuickActionsController> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Header section
-          Container(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const Text(
-                  'Quick Actions',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Tap to log activities for ${controller.clientName}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Quick actions grid
-          Expanded(
-            child: GridView.count(
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: Column(
+          children: [
+            // Header section
+            Container(
               padding: const EdgeInsets.all(16),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.1,
-              children: [
-                _buildActionCard(
-                  icon: Icons.medication,
-                  title: 'Medication Given',
-                  subtitle: 'Log medication as given',
-                  color: Colors.green,
-                  onTap: () => controller.showMedicationActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.cancel,
-                  title: 'Medication Refused',
-                  subtitle: 'Log medication as refused',
-                  color: Colors.red,
-                  onTap: () => controller.showMedicationActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.wc,
-                  title: 'Toileting',
-                  subtitle: 'Bathroom & stool',
-                  color: Colors.orange,
-                  onTap: () => controller.showToiletingActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.restaurant,
-                  title: 'Meals',
-                  subtitle: 'Nutrition & meals',
-                  color: Colors.green,
-                  onTap: () => controller.showMealActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.local_drink,
-                  title: 'Hydration',
-                  subtitle: 'Fluid intake',
-                  color: Colors.blue,
-                  onTap: () => controller.showHydrationActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.psychology,
-                  title: 'Behavior/Mood',
-                  subtitle: 'Behavior & mood',
-                  color: Colors.purple,
-                  onTap: () => controller.showBehaviorActions(),
-                ),
-                _buildActionCard(
-                  icon: Icons.note,
-                  title: 'Note',
-                  subtitle: 'General notes',
-                  color: Colors.blue,
-                  onTap: () => controller.showNoteDialog(),
-                ),
-                _buildActionCard(
-                  icon: Icons.camera_alt,
-                  title: 'Photo/Attachment',
-                  subtitle: 'Photo documentation',
-                  color: Colors.grey,
-                  onTap: () => controller.takePhoto(),
-                ),
-              ],
+              child: Column(
+                children: [
+                  const Text(
+                    'Quick Actions',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap to log activities for ${controller.clientName}',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            // Quick actions grid
+            Expanded(
+              child: GridView.count(
+                padding: const EdgeInsets.all(16),
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                crossAxisCount: 2,
+                crossAxisSpacing: 16,
+                mainAxisSpacing: 16,
+                childAspectRatio: 1.1,
+                children: [
+                  _buildActionCard(
+                    icon: Icons.medication,
+                    title: 'Medication Given',
+                    subtitle: 'Log medication as given',
+                    color: Colors.green,
+                    onTap: () => controller.showMedicationActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.cancel,
+                    title: 'Medication Refused',
+                    subtitle: 'Log medication as refused',
+                    color: Colors.red,
+                    onTap: () => controller.showMedicationActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.wc,
+                    title: 'Toileting',
+                    subtitle: 'Bathroom & stool',
+                    color: Colors.orange,
+                    onTap: () => controller.showToiletingActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.restaurant,
+                    title: 'Meals',
+                    subtitle: 'Nutrition & meals',
+                    color: Colors.green,
+                    onTap: () => controller.showMealActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.local_drink,
+                    title: 'Hydration',
+                    subtitle: 'Fluid intake',
+                    color: Colors.blue,
+                    onTap: () => controller.showHydrationActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.psychology,
+                    title: 'Behavior/Mood',
+                    subtitle: 'Behavior & mood',
+                    color: Colors.purple,
+                    onTap: () => controller.showBehaviorActions(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.note,
+                    title: 'Note',
+                    subtitle: 'General notes',
+                    color: Colors.blue,
+                    onTap: () => controller.showNoteDialog(),
+                  ),
+                  _buildActionCard(
+                    icon: Icons.camera_alt,
+                    title: 'Photo/Attachment',
+                    subtitle: 'Photo documentation',
+                    color: Colors.grey,
+                    onTap: () => controller.takePhoto(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
@@ -194,13 +197,16 @@ class QuickActionsView extends GetView<QuickActionsController> {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: 0,
+          currentIndex: 1,
           onTap: (index) {
             switch (index) {
               case 0:
-                Get.back(); // Go back to clients
+                Get.toNamed('/home');
                 break;
               case 1:
+                Get.toNamed('/client/dashboard');
+                break;
+              case 2:
                 Get.snackbar(
                   'Info',
                   'Settings coming soon',
@@ -215,6 +221,10 @@ class QuickActionsView extends GetView<QuickActionsController> {
           selectedItemColor: Colors.blue[600],
           unselectedItemColor: Colors.grey[600],
           items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
               label: 'Clients',

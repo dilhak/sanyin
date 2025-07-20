@@ -10,6 +10,8 @@ import '../modules/client/bindings/add_client_binding.dart';
 import '../modules/client/views/add_client_view.dart';
 import '../modules/client/bindings/client_details_binding.dart';
 import '../modules/client/views/client_details_view.dart';
+import '../modules/client/bindings/edit_client_binding.dart';
+import '../modules/client/views/edit_client_view.dart';
 import '../modules/care_log/bindings/quick_actions_binding.dart';
 import '../modules/care_log/views/quick_actions_view.dart';
 import '../modules/care_log/bindings/care_log_history_binding.dart';
@@ -50,6 +52,11 @@ class AppPages {
       name: _Paths.CLIENT_DETAILS,
       page: () => const ClientDetailsView(),
       binding: ClientDetailsBinding(),
+    ),
+    GetPage(
+      name: _Paths.EDIT_CLIENT,
+      page: () => const EditClientView(),
+      binding: EditClientBinding(),
     ),
     GetPage(
       name: _Paths.QUICK_ACTIONS,

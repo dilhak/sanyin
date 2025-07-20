@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/add_client_controller.dart';
+import '../controllers/edit_client_controller.dart';
 
-class AddClientView extends GetView<AddClientController> {
-  const AddClientView({super.key});
+class EditClientView extends GetView<EditClientController> {
+  const EditClientView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class AddClientView extends GetView<AddClientController> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        title: const Text('Add Client'),
+        title: const Text('Edit Client'),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -25,7 +25,7 @@ class AddClientView extends GetView<AddClientController> {
         ),
         actions: [
           TextButton(
-            onPressed: controller.saveClient,
+            onPressed: controller.updateClient,
             child: Text(
               'Save',
               style: TextStyle(
@@ -41,7 +41,7 @@ class AddClientView extends GetView<AddClientController> {
                 case 'help':
                   Get.snackbar(
                     'Help',
-                    'Fill in the required fields (name is required) and tap Save to add the client',
+                    'Edit the client name and home, then tap Save to update',
                     backgroundColor: Colors.green[100],
                     colorText: Colors.green[800],
                   );
@@ -115,14 +115,14 @@ class AddClientView extends GetView<AddClientController> {
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.person_add,
+                        Icons.person,
                         size: 40,
                         color: Colors.blue[600],
                       ),
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'Client Information',
+                      'Edit Client Information',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

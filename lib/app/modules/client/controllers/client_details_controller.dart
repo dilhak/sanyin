@@ -384,7 +384,8 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showVitalsInputDialog() {
-    final TextEditingController bpController = TextEditingController();
+    final TextEditingController systolicController = TextEditingController();
+    final TextEditingController diastolicController = TextEditingController();
     final TextEditingController pulseController = TextEditingController();
     final TextEditingController tempController = TextEditingController();
     final TextEditingController respController = TextEditingController();
@@ -403,22 +404,57 @@ class ClientDetailsController extends GetxController {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    SizedBox(
-                      width: double.infinity,
-                      child: TextField(
-                        controller: bpController,
-                        decoration: InputDecoration(
-                          labelText: 'Blood Pressure (e.g., 120/80)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.pink[600]!),
+                    // Blood Pressure - Split into two fields
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: systolicController,
+                            decoration: InputDecoration(
+                              labelText: 'Systolic',
+                              hintText: '120',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.pink[600]!),
+                              ),
+                            ),
+                            keyboardType: TextInputType.number,
                           ),
                         ),
-                        keyboardType: TextInputType.text,
-                      ),
+                        const SizedBox(width: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Text(
+                            '/',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: diastolicController,
+                            decoration: InputDecoration(
+                              labelText: 'Diastolic',
+                              hintText: '80',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.pink[600]!),
+                              ),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     SizedBox(
@@ -512,12 +548,12 @@ class ClientDetailsController extends GetxController {
                         ],
                       ),
                     ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 24),
-            // Action buttons
+            // Action buttons - Raised up
             Row(
               children: [
                 Expanded(
@@ -545,12 +581,13 @@ class ClientDetailsController extends GetxController {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      final bp = bpController.text.trim();
+                      final systolic = systolicController.text.trim();
+                      final diastolic = diastolicController.text.trim();
                       final pulse = pulseController.text.trim();
                       final temp = tempController.text.trim();
                       final resp = respController.text.trim();
                       
-                      if (bp.isEmpty && pulse.isEmpty && temp.isEmpty && resp.isEmpty) {
+                      if (systolic.isEmpty && diastolic.isEmpty && pulse.isEmpty && temp.isEmpty && resp.isEmpty) {
                         Get.snackbar(
                           'Error',
                           'Please enter at least one vital sign',
@@ -563,15 +600,12 @@ class ClientDetailsController extends GetxController {
                       // Validate and check for nurse call thresholds
                       final warnings = <String>[];
                       
-                      if (bp.isNotEmpty) {
-                        final bpParts = bp.split('/');
-                        if (bpParts.length == 2) {
-                          final systolic = int.tryParse(bpParts[0]);
-                          final diastolic = int.tryParse(bpParts[1]);
-                          if (systolic != null && diastolic != null) {
-                            if (systolic > 150 || systolic < 90 || diastolic > 90 || diastolic < 50) {
-                              warnings.add('Blood Pressure: $systolic/$diastolic');
-                            }
+                      if (systolic.isNotEmpty && diastolic.isNotEmpty) {
+                        final systolicValue = int.tryParse(systolic);
+                        final diastolicValue = int.tryParse(diastolic);
+                        if (systolicValue != null && diastolicValue != null) {
+                          if (systolicValue > 150 || systolicValue < 90 || diastolicValue > 90 || diastolicValue < 50) {
+                            warnings.add('Blood Pressure: $systolicValue/$diastolicValue');
                           }
                         }
                       }
@@ -600,6 +634,7 @@ class ClientDetailsController extends GetxController {
                       Get.back();
                       
                       // Log vitals
+                      final bp = systolic.isNotEmpty && diastolic.isNotEmpty ? '$systolic/$diastolic' : '';
                       _saveCareLog(
                         CareActivityType.vitals,
                         'assessment',
@@ -942,7 +977,7 @@ class ClientDetailsController extends GetxController {
   }
 
   void editClient() {
-    Get.toNamed('/client/edit', arguments: client);
+    Get.toNamed(Routes.EDIT_CLIENT, arguments: client);
   }
 
   void takePhoto() {

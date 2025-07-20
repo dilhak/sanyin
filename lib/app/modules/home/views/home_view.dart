@@ -278,7 +278,7 @@ class HomeView extends GetView<HomeController> {
                 // Already on home page, do nothing
                 break;
               case 1:
-                Get.toNamed('/clients');
+                Get.toNamed('/client/dashboard');
                 break;
               case 2:
                 Get.snackbar(
