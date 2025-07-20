@@ -828,7 +828,7 @@ class HomeView extends GetView<HomeController> {
                 ),
                 const SizedBox(height: 24),
                 // Input field
-                Container(
+                SizedBox(
                   width: double.infinity,
                   child: TextField(
                     controller: noteController,
@@ -1252,7 +1252,7 @@ class HomeView extends GetView<HomeController> {
                 )),
                 const SizedBox(height: 16),
                 // Description field
-                Container(
+                SizedBox(
                   width: double.infinity,
                   child: TextField(
                     controller: descriptionController,
@@ -1506,7 +1506,7 @@ class HomeView extends GetView<HomeController> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: Container(
+                          child: SizedBox(
                             width: double.infinity,
                             child: TextField(
                               controller: newItemController,

@@ -403,7 +403,7 @@ class ClientDetailsController extends GetxController {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: TextField(
                         controller: bpController,
@@ -421,7 +421,7 @@ class ClientDetailsController extends GetxController {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: TextField(
                         controller: pulseController,
@@ -439,7 +439,7 @@ class ClientDetailsController extends GetxController {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: TextField(
                         controller: tempController,
@@ -457,7 +457,7 @@ class ClientDetailsController extends GetxController {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Container(
+                    SizedBox(
                       width: double.infinity,
                       child: TextField(
                         controller: respController,

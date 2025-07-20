@@ -390,7 +390,7 @@ class FacilityHistoryView extends GetView<HomeController> {
                 ),
                 const SizedBox(height: 24),
                 // Description field
-                Container(
+                SizedBox(
                   width: double.infinity,
                   child: TextField(
                     controller: descriptionController,

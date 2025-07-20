@@ -38,7 +38,7 @@ class ReminderDialog {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey[200]!),
                           ),
-                          child: Container(
+                          child: SizedBox(
                             width: double.infinity,
                             child: TextField(
                               controller: titleController,
@@ -71,7 +71,7 @@ class ReminderDialog {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey[200]!),
                           ),
-                          child: Container(
+                          child: SizedBox(
                             width: double.infinity,
                             child: TextField(
                               controller: descriptionController,

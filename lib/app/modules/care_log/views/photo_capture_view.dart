@@ -210,7 +210,7 @@ class PhotoCaptureView extends GetView<PhotoCaptureController> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                                     Container(
+                                     SizedBox(
                                        width: double.infinity,
                                        child: TextField(
                                          controller: controller.notesController,

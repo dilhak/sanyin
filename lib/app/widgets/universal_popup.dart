@@ -389,7 +389,7 @@ class UniversalPopup {
               ),
               const SizedBox(height: 24),
               // Input field
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: TextField(
                   controller: controller,
