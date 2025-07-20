@@ -11,6 +11,7 @@ abstract class Routes {
   static const QUICK_ACTIONS = _Paths.QUICK_ACTIONS;
   static const CARE_LOG_HISTORY = _Paths.CARE_LOG_HISTORY;
   static const PHOTO_CAPTURE = _Paths.PHOTO_CAPTURE;
+  static const FACILITY_HISTORY = _Paths.FACILITY_HISTORY;
 }
 
 abstract class _Paths {
@@ -23,4 +24,5 @@ abstract class _Paths {
   static const QUICK_ACTIONS = '/care/log';
   static const CARE_LOG_HISTORY = '/care/history';
   static const PHOTO_CAPTURE = '/care/photo';
+  static const FACILITY_HISTORY = '/facility/history';
 }

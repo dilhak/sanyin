@@ -10,13 +10,5 @@ class SplashController extends GetxController {
     splashService.checkUserLogin();
   }
 
-  @override
-  void onReady() {
-    super.onReady();
-  }
 
-  @override
-  void onClose() {
-    super.onClose();
-  }
 }

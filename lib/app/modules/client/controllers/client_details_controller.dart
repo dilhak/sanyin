@@ -558,7 +558,7 @@ class ClientDetailsController extends GetxController {
                           final diastolic = int.tryParse(bpParts[1]);
                           if (systolic != null && diastolic != null) {
                             if (systolic > 150 || systolic < 90 || diastolic > 90 || diastolic < 50) {
-                              warnings.add('Blood Pressure: ${systolic}/${diastolic}');
+                              warnings.add('Blood Pressure: $systolic/$diastolic');
                             }
                           }
                         }
@@ -574,7 +574,7 @@ class ClientDetailsController extends GetxController {
                       if (temp.isNotEmpty) {
                         final tempValue = double.tryParse(temp);
                         if (tempValue != null && (tempValue > 100 || tempValue < 95)) {
-                          warnings.add('Temperature: ${tempValue}°F');
+                          warnings.add('Temperature: $tempValue°F');
                         }
                       }
                       
@@ -715,7 +715,7 @@ class ClientDetailsController extends GetxController {
                         ),
                       ],
                     ),
-                  )).toList(),
+                  )),
                   const SizedBox(height: 12),
                   Text(
                     'Please contact a nurse immediately.',

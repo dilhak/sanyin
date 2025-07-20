@@ -16,13 +16,14 @@ import '../modules/care_log/bindings/care_log_history_binding.dart';
 import '../modules/care_log/views/care_log_history_view.dart';
 import '../modules/care_log/bindings/photo_capture_binding.dart';
 import '../modules/care_log/views/photo_capture_view.dart';
+import '../modules/home/views/facility_history_view.dart';
 
 part 'app_routes.dart';
 
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.CLIENT_DASHBOARD;
+  static const INITIAL = Routes.HOME;
 
   static final routes = [
     GetPage(
@@ -64,6 +65,11 @@ class AppPages {
       name: _Paths.PHOTO_CAPTURE,
       page: () => const PhotoCaptureView(),
       binding: PhotoCaptureBinding(),
+    ),
+    GetPage(
+      name: _Paths.FACILITY_HISTORY,
+      page: () => const FacilityHistoryView(),
+      binding: HomeBinding(),
     ),
   ];
 }

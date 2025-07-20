@@ -279,13 +279,16 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
           ],
         ),
         child: BottomNavigationBar(
-          currentIndex: 0,
+          currentIndex: 1,
           onTap: (index) {
             switch (index) {
               case 0:
-                // Already on clients page
+                Get.toNamed('/home');
                 break;
               case 1:
+                // Already on clients page
+                break;
+              case 2:
                 Get.snackbar(
                   'Info',
                   'Settings coming soon',
@@ -300,6 +303,10 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
           selectedItemColor: Colors.blue[600],
           unselectedItemColor: Colors.grey[600],
           items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
               label: 'Clients',

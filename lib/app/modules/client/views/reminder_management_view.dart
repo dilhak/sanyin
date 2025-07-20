@@ -163,8 +163,8 @@ class ReminderManagementView extends GetView<ClientDetailsController> {
               }
             },
             backgroundColor: Colors.purple[600],
-            child: const Icon(Icons.settings, color: Colors.white),
             heroTag: 'check_settings',
+            child: const Icon(Icons.settings, color: Colors.white),
           ),
           const SizedBox(height: 16),
           FloatingActionButton(
@@ -204,15 +204,15 @@ class ReminderManagementView extends GetView<ClientDetailsController> {
               }
             },
             backgroundColor: Colors.orange[600],
-            child: const Icon(Icons.notifications, color: Colors.white),
             heroTag: 'test_notification',
+            child: const Icon(Icons.notifications, color: Colors.white),
           ),
           const SizedBox(height: 16),
           FloatingActionButton(
             onPressed: () => controller.showAddReminderDialog(),
             backgroundColor: Colors.blue[600],
-            child: const Icon(Icons.add, color: Colors.white),
             heroTag: 'add_reminder',
+            child: const Icon(Icons.add, color: Colors.white),
           ),
         ],
       ),

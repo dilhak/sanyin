@@ -58,7 +58,7 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
                 final date = entry.key;
                 final logs = entry.value;
                 return _buildDateSection(date, logs);
-              }).toList(),
+              }),
             ],
           ),
         );
@@ -240,7 +240,7 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
             ),
           ),
           const SizedBox(height: 16),
-          ...logs.map((log) => _buildLogCard(log)).toList(),
+          ...logs.map((log) => _buildLogCard(log)),
         ],
       ),
     );
