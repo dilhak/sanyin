@@ -1,8 +1,45 @@
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 import '../models/client_model.dart';
 import '../../../routes/app_pages.dart';
 import '../../../services/database_service.dart';
 import '../../../core/error_handler.dart';
+
+class FacilityLog {
+  final String action;
+  final String description;
+  final DateTime timestamp;
+  final String type;
+  final Map<String, dynamic>? additionalData;
+
+  FacilityLog({
+    required this.action,
+    required this.description,
+    required this.timestamp,
+    required this.type,
+    this.additionalData,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'action': action,
+      'description': description,
+      'timestamp': timestamp.toIso8601String(),
+      'type': type,
+      'additionalData': additionalData,
+    };
+  }
+
+  factory FacilityLog.fromJson(Map<String, dynamic> json) {
+    return FacilityLog(
+      action: json['action'],
+      description: json['description'],
+      timestamp: DateTime.parse(json['timestamp']),
+      type: json['type'],
+      additionalData: json['additionalData'],
+    );
+  }
+}
 
 class ClientDashboardController extends GetxController {
   final RxList<Client> clients = <Client>[].obs;
@@ -13,10 +50,28 @@ class ClientDashboardController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
   final ErrorHandler _errorHandler = ErrorHandler();
 
+  // Quick Actions Controllers
+  final TextEditingController houseNoteController = TextEditingController();
+  final TextEditingController complaintController = TextEditingController();
+  final RxBool isOnShift = false.obs;
+  final RxBool isOnBreak = false.obs;
+  final Rx<DateTime?> clockInTime = Rx<DateTime?>(null);
+  final Rx<DateTime?> breakStartTime = Rx<DateTime?>(null);
+
+  // Facility History Logs
+  final RxList<FacilityLog> facilityLogs = <FacilityLog>[].obs;
+
   @override
   void onInit() {
     super.onInit();
     loadClients();
+  }
+
+  @override
+  void onClose() {
+    houseNoteController.dispose();
+    complaintController.dispose();
+    super.onClose();
   }
 
   Future<void> loadClients() async {
@@ -91,6 +146,150 @@ class ClientDashboardController extends GetxController {
       _errorHandler.showSuccessSnackbar('Client deleted successfully');
     } catch (e) {
       _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
+    }
+  }
+
+  // Logging Methods
+  void _addLog(String action, String description, String type, {Map<String, dynamic>? additionalData}) {
+    final log = FacilityLog(
+      action: action,
+      description: description,
+      timestamp: DateTime.now(),
+      type: type,
+      additionalData: additionalData,
+    );
+    facilityLogs.add(log);
+    // In a real app, you would save this to a database
+    print('Facility Log: $action - $description at ${_formatDateTime(DateTime.now())}');
+  }
+
+  void addLog(String action, String description, String type, {Map<String, dynamic>? additionalData}) {
+    _addLog(action, description, type, additionalData: additionalData);
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${_formatTime(dateTime)}';
+  }
+
+  String _formatTime(DateTime dateTime) {
+    return '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
+  }
+
+  // Quick Actions Methods
+  void clockInOut() {
+    if (isOnShift.value) {
+      _clockOut();
+    } else {
+      _clockIn();
+    }
+  }
+
+  void _clockIn() {
+    isOnShift.value = true;
+    clockInTime.value = DateTime.now();
+    _addLog(
+      'Clock In',
+      'Successfully clocked in at ${_formatTime(DateTime.now())}',
+      'clock_in_out',
+      additionalData: {'time': _formatTime(DateTime.now())},
+    );
+    _errorHandler.showSuccessSnackbar('Successfully clocked in at ${_formatTime(DateTime.now())}');
+  }
+
+  void _clockOut() {
+    isOnShift.value = false;
+    clockInTime.value = null;
+    _addLog(
+      'Clock Out',
+      'Successfully clocked out at ${_formatTime(DateTime.now())}',
+      'clock_in_out',
+      additionalData: {'time': _formatTime(DateTime.now())},
+    );
+    _errorHandler.showSuccessSnackbar('Successfully clocked out at ${_formatTime(DateTime.now())}');
+  }
+
+  void startEndBreak() {
+    if (isOnBreak.value) {
+      _endBreak();
+    } else {
+      _startBreak();
+    }
+  }
+
+  void _startBreak() {
+    isOnBreak.value = true;
+    breakStartTime.value = DateTime.now();
+    _addLog(
+      'Break Started',
+      'Break started at ${_formatTime(DateTime.now())}',
+      'break',
+      additionalData: {'time': _formatTime(DateTime.now())},
+    );
+    _errorHandler.showSuccessSnackbar('Break started at ${_formatTime(DateTime.now())}');
+  }
+
+  void _endBreak() {
+    isOnBreak.value = false;
+    breakStartTime.value = null;
+    _addLog(
+      'Break Ended',
+      'Break ended at ${_formatTime(DateTime.now())}',
+      'break',
+      additionalData: {'time': _formatTime(DateTime.now())},
+    );
+    _errorHandler.showSuccessSnackbar('Break ended at ${_formatTime(DateTime.now())}');
+  }
+
+  void saveHouseNote(String note) {
+    if (note.trim().isNotEmpty) {
+      _addLog(
+        'House Note',
+        note,
+        'house_note',
+        additionalData: {'note': note},
+      );
+      _errorHandler.showSuccessSnackbar('House note saved successfully');
+    } else {
+      _errorHandler.showWarningSnackbar('Please enter a note');
+    }
+  }
+
+  void submitComplaint(String complaint) {
+    if (complaint.trim().isNotEmpty) {
+      _addLog(
+        'Complaint/Concern',
+        complaint,
+        'complaint',
+        additionalData: {'complaint': complaint},
+      );
+      _errorHandler.showSuccessSnackbar('Complaint submitted successfully');
+    } else {
+      _errorHandler.showWarningSnackbar('Please describe your complaint');
+    }
+  }
+
+  void viewFacilityHistory() {
+    Get.snackbar(
+      'Info',
+      'Facility history feature coming soon',
+      backgroundColor: Colors.blue[100],
+      colorText: Colors.blue[800],
+    );
+  }
+
+  String getCurrentStatus() {
+    if (isOnShift.value) {
+      return 'On Shift';
+    } else {
+      return 'Off Shift';
+    }
+  }
+
+  String getBreakStatus() {
+    if (isOnBreak.value) {
+      return 'On Break';
+    } else {
+      return 'Not on break';
     }
   }
 } 

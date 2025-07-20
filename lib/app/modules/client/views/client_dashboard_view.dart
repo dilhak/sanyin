@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/client_dashboard_controller.dart';
 import '../models/client_model.dart';
+import '../../../widgets/universal_popup.dart';
 
 class ClientDashboardView extends GetView<ClientDashboardController> {
   const ClientDashboardView({super.key});
@@ -73,8 +74,7 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
           ),
         ],
       ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
+      body: SingleChildScrollView(
         child: Column(
           children: [
             // Enhanced location selector
@@ -125,102 +125,217 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
                 ],
               ),
             ),
-            // Client list
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Loading clients...',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
+            
+            // Clients Section Header
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  const Text(
+                    'Clients',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
-                  );
-                }
-                
-                if (controller.filteredClients.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          width: 120,
-                          height: 120,
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.people_outline,
-                            size: 60,
-                            color: Colors.blue[400],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        Text(
-                          'No clients yet',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Add your first client to get started',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[500],
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 32),
-                        ElevatedButton.icon(
-                          onPressed: controller.addNewClient,
-                          icon: const Icon(Icons.add),
-                          label: const Text('Add First Client'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue[600],
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return GridView.builder(
-                  padding: const EdgeInsets.all(16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.9,
                   ),
-                  itemCount: controller.filteredClients.length,
-                  itemBuilder: (context, index) {
-                    final client = controller.filteredClients[index];
-                    return _buildClientCard(client, index);
-                  },
-                );
-              }),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Manage and view client information',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
             ),
+            
+            // Client list
+            Obx(() {
+              if (controller.isLoading.value) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Loading clients...',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              
+              if (controller.filteredClients.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Colors.blue[50],
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.people_outline,
+                          size: 60,
+                          color: Colors.blue[400],
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'No clients yet',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Add your first client to get started',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.grey[500],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+                      ElevatedButton.icon(
+                        onPressed: controller.addNewClient,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add First Client'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue[600],
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          elevation: 2,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return GridView.builder(
+                padding: const EdgeInsets.all(16),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.9,
+                ),
+                itemCount: controller.filteredClients.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) {
+                  final client = controller.filteredClients[index];
+                  return _buildClientCard(client, index);
+                },
+              );
+            }),
+            
+            // Quick Actions Section
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                children: [
+                  const Text(
+                    'Quick Actions',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap to log facility activities and manage shift',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Quick actions grid
+            GridView.count(
+              padding: const EdgeInsets.all(16),
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.9,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                _buildActionCard(
+                  icon: Icons.access_time,
+                  title: 'Clock In/Out',
+                  subtitle: 'Toggle shift status',
+                  color: Colors.blue,
+                  onTap: () => _showClockInOutDialog(),
+                ),
+                _buildActionCard(
+                  icon: Icons.coffee,
+                  title: 'Break',
+                  subtitle: 'Start/End break',
+                  color: Colors.orange,
+                  onTap: () => _showBreakDialog(),
+                ),
+                _buildActionCard(
+                  icon: Icons.note,
+                  title: 'House Note',
+                  subtitle: 'Quick facility notes',
+                  color: Colors.green,
+                  onTap: () => _showHouseNoteDialog(),
+                ),
+                _buildActionCard(
+                  icon: Icons.inventory,
+                  title: 'Supplies',
+                  subtitle: 'Check supply status',
+                  color: Colors.purple,
+                  onTap: () => _showSuppliesDialog(),
+                ),
+                _buildActionCard(
+                  icon: Icons.report_problem,
+                  title: 'Complaint/Concern',
+                  subtitle: 'Report issues',
+                  color: Colors.red,
+                  onTap: () => _showComplaintDialog(),
+                ),
+                _buildActionCard(
+                  icon: Icons.checklist,
+                  title: 'Shift Checklist',
+                  subtitle: 'Complete shift tasks',
+                  color: Colors.teal,
+                  onTap: () => _showChecklistDialog(),
+                ),
+                _buildActionCard(
+                  icon: Icons.history,
+                  title: 'Facility History',
+                  subtitle: 'View activity logs',
+                  color: Colors.indigo,
+                  onTap: () => controller.viewFacilityHistory(),
+                ),
+              ],
+            ),
+            
+            const SizedBox(height: 100), // Bottom padding for bottom navigation
           ],
         ),
       ),
@@ -389,7 +504,89 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
     );
   }
 
-
+  Widget _buildActionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.white, Colors.grey[50]!],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withValues(alpha: 0.08),
+            spreadRadius: 1,
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.3),
+                        spreadRadius: 2,
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Center(
+                    child: Icon(
+                      icon,
+                      color: color,
+                      size: 30,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   void _showLocationSelector() {
     Get.bottomSheet(
@@ -492,4 +689,133 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
     );
   }
 
+  void _showClockInOutDialog() {
+    UniversalPopup.show(
+      title: 'Clock In/Out',
+      subtitle: 'Toggle your shift status',
+      icon: Icons.access_time,
+      color: Colors.blue,
+      actions: [
+        PopupAction(
+          title: 'Cancel',
+          icon: Icons.close,
+          color: Colors.grey,
+          onTap: () => Get.back(),
+        ),
+        PopupAction(
+          title: controller.isOnShift.value ? 'Clock Out' : 'Clock In',
+          icon: controller.isOnShift.value ? Icons.logout : Icons.login,
+          color: Colors.blue,
+          onTap: () {
+            Get.back();
+            controller.clockInOut();
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showBreakDialog() {
+    UniversalPopup.show(
+      title: 'Break Management',
+      subtitle: 'Start or end your break',
+      icon: Icons.coffee,
+      color: Colors.orange,
+      actions: [
+        PopupAction(
+          title: 'Cancel',
+          icon: Icons.close,
+          color: Colors.grey,
+          onTap: () => Get.back(),
+        ),
+        PopupAction(
+          title: controller.isOnBreak.value ? 'End Break' : 'Start Break',
+          icon: controller.isOnBreak.value ? Icons.stop : Icons.play_arrow,
+          color: Colors.orange,
+          onTap: () {
+            Get.back();
+            controller.startEndBreak();
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showHouseNoteDialog() {
+    UniversalPopup.showInputDialog(
+      title: 'House Note',
+      hintText: 'Enter your house note here...',
+      maxLines: 3,
+      onConfirm: (note) {
+        controller.saveHouseNote(note);
+      },
+    );
+  }
+
+  void _showSuppliesDialog() {
+    UniversalPopup.showSubOptions(
+      title: 'Supplies Check',
+      options: [
+        'Cleaning Supplies',
+        'Medical Supplies', 
+        'Food & Beverages',
+        'Personal Care Items',
+        'Safety Equipment',
+        'Office Supplies',
+      ],
+      onSelect: (supply) {
+        controller.addLog(
+          'Supplies Check',
+          'Checked $supply',
+          'supplies',
+          additionalData: {'supply': supply},
+        );
+        Get.snackbar(
+          'Supplies Check',
+          '$supply status recorded',
+          backgroundColor: Colors.purple[100],
+          colorText: Colors.purple[800],
+        );
+      },
+    );
+  }
+
+  void _showComplaintDialog() {
+    UniversalPopup.showInputDialog(
+      title: 'Complaint/Concern',
+      hintText: 'Describe your complaint or concern...',
+      maxLines: 4,
+      onConfirm: (complaint) {
+        controller.submitComplaint(complaint);
+      },
+    );
+  }
+
+  void _showChecklistDialog() {
+    UniversalPopup.showSubOptions(
+      title: 'Shift Checklist',
+      options: [
+        'Trash emptied',
+        'Bathrooms checked',
+        'Lights off',
+        'Clients stable',
+        'Security check',
+        'Documentation complete',
+      ],
+      onSelect: (task) {
+        controller.addLog(
+          'Checklist Item',
+          'Completed: $task',
+          'checklist',
+          additionalData: {'task': task},
+        );
+        Get.snackbar(
+          'Checklist Updated',
+          '$task marked as complete',
+          backgroundColor: Colors.teal[100],
+          colorText: Colors.teal[800],
+        );
+      },
+    );
+  }
 } 

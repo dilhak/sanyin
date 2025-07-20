@@ -389,6 +389,8 @@ class ClientDetailsController extends GetxController {
     final TextEditingController pulseController = TextEditingController();
     final TextEditingController tempController = TextEditingController();
     final TextEditingController respController = TextEditingController();
+    final TextEditingController weightController = TextEditingController();
+    final TextEditingController oxygenController = TextEditingController();
     
     ResponsiveBottomDrawer.show(
       title: 'Vitals Assessment',
@@ -511,6 +513,46 @@ class ClientDetailsController extends GetxController {
                       ),
                     ),
                     const SizedBox(height: 16),
+                    // Weight field
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextField(
+                        controller: weightController,
+                        decoration: InputDecoration(
+                          labelText: 'Weight (lbs) - Optional',
+                          hintText: '150',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.pink[600]!),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    // Blood Oxygen field
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextField(
+                        controller: oxygenController,
+                        decoration: InputDecoration(
+                          labelText: 'Blood Oxygen (%) - Optional',
+                          hintText: '98',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.pink[600]!),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -539,7 +581,8 @@ class ClientDetailsController extends GetxController {
                             '• BP: Systolic >150 or <90, Diastolic >90 or <50\n'
                             '• Pulse: >100 or <50\n'
                             '• Temp: >100°F or <95°F\n'
-                            '• Respirations: >24 or <12',
+                            '• Respirations: >24 or <12\n'
+                            '• Blood Oxygen: <95%',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.orange[700],
@@ -586,8 +629,10 @@ class ClientDetailsController extends GetxController {
                       final pulse = pulseController.text.trim();
                       final temp = tempController.text.trim();
                       final resp = respController.text.trim();
+                      final weight = weightController.text.trim();
+                      final oxygen = oxygenController.text.trim();
                       
-                      if (systolic.isEmpty && diastolic.isEmpty && pulse.isEmpty && temp.isEmpty && resp.isEmpty) {
+                      if (systolic.isEmpty && diastolic.isEmpty && pulse.isEmpty && temp.isEmpty && resp.isEmpty && weight.isEmpty && oxygen.isEmpty) {
                         Get.snackbar(
                           'Error',
                           'Please enter at least one vital sign',
@@ -631,6 +676,13 @@ class ClientDetailsController extends GetxController {
                         }
                       }
                       
+                      if (oxygen.isNotEmpty) {
+                        final oxygenValue = int.tryParse(oxygen);
+                        if (oxygenValue != null && oxygenValue < 95) {
+                          warnings.add('Blood Oxygen: $oxygenValue%');
+                        }
+                      }
+                      
                       Get.back();
                       
                       // Log vitals
@@ -639,7 +691,7 @@ class ClientDetailsController extends GetxController {
                         CareActivityType.vitals,
                         'assessment',
                         null,
-                        'Vitals: BP: $bp, Pulse: $pulse, Temp: $temp, Resp: $resp',
+                        'Vitals: BP: $bp, Pulse: $pulse, Temp: $temp, Resp: $resp, Weight: $weight lbs, O2: $oxygen%',
                       );
                       
                       // Show warnings if any
