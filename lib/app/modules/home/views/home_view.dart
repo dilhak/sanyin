@@ -281,6 +281,9 @@ class HomeView extends GetView<HomeController> {
                 Get.toNamed('/client/dashboard');
                 break;
               case 2:
+                Get.toNamed('/tasks');
+                break;
+              case 3:
                 Get.snackbar(
                   'Info',
                   'Settings coming soon',
@@ -302,6 +305,10 @@ class HomeView extends GetView<HomeController> {
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
               label: 'Clients',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.task),
+              label: 'Tasks',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),

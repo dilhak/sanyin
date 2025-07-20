@@ -391,6 +391,9 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
               case 1:
                 break;
               case 2:
+                Get.toNamed('/tasks');
+                break;
+              case 3:
                 Get.snackbar(
                   'Info',
                   'Settings coming soon',
@@ -413,6 +416,10 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
             BottomNavigationBarItem(
               icon: Icon(Icons.people),
               label: 'Clients',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.task),
+              label: 'Tasks',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.settings),
