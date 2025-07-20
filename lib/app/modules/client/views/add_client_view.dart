@@ -236,46 +236,49 @@ class AddClientView extends GetView<AddClientController> {
           ],
         ),
         const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          focusNode: focusNode,
-          keyboardType: keyboardType,
-          maxLines: maxLines,
-          textInputAction: maxLines == 1 ? TextInputAction.next : TextInputAction.done,
-          onSubmitted: (_) {
-            // Auto-focus next field or dismiss keyboard
-            if (context.mounted) {
-              FocusScope.of(context).nextFocus();
-            }
-          },
-          decoration: InputDecoration(
-            hintText: 'Enter ${label.toLowerCase()}',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
+        Container(
+          width: double.infinity,
+          child: TextField(
+            controller: controller,
+            focusNode: focusNode,
+            keyboardType: keyboardType,
+            maxLines: maxLines,
+            textInputAction: maxLines == 1 ? TextInputAction.next : TextInputAction.done,
+            onSubmitted: (_) {
+              // Auto-focus next field or dismiss keyboard
+              if (context.mounted) {
+                FocusScope.of(context).nextFocus();
+              }
+            },
+            decoration: InputDecoration(
+              hintText: 'Enter ${label.toLowerCase()}',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey[300]!),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.blue[600]!),
+              ),
+              filled: true,
+              fillColor: Colors.grey[50],
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              suffixIcon: maxLines > 1 ? IconButton(
+                icon: Icon(Icons.keyboard_hide, color: Colors.grey[600]),
+                onPressed: () {
+                  if (context.mounted) {
+                    FocusScope.of(context).unfocus();
+                  }
+                },
+              ) : null,
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey[300]!),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.blue[600]!),
-            ),
-            filled: true,
-            fillColor: Colors.grey[50],
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-                                   suffixIcon: maxLines > 1 ? IconButton(
-                         icon: Icon(Icons.keyboard_hide, color: Colors.grey[600]),
-                         onPressed: () {
-                           if (context.mounted) {
-                             FocusScope.of(context).unfocus();
-                           }
-                         },
-                       ) : null,
           ),
         ),
       ],

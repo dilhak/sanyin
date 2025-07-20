@@ -389,34 +389,37 @@ class UniversalPopup {
               ),
               const SizedBox(height: 24),
               // Input field
-              TextField(
-                controller: controller,
-                maxLines: maxLines,
-                keyboardType: keyboardType,
-                decoration: InputDecoration(
-                  hintText: hintText,
-                  hintStyle: TextStyle(
-                    color: Colors.grey[400],
+              Container(
+                width: double.infinity,
+                child: TextField(
+                  controller: controller,
+                  maxLines: maxLines,
+                  keyboardType: keyboardType,
+                  decoration: InputDecoration(
+                    hintText: hintText,
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 16,
+                    ),
+                    filled: true,
+                    fillColor: Colors.grey[50],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Colors.blue, width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 16,
+                    ),
+                  ),
+                  style: const TextStyle(
                     fontSize: 16,
+                    color: Colors.black87,
                   ),
-                  filled: true,
-                  fillColor: Colors.grey[50],
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: const BorderSide(color: Colors.blue, width: 2),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                ),
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 24),

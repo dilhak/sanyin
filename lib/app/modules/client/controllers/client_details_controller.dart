@@ -403,64 +403,76 @@ class ClientDetailsController extends GetxController {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    TextField(
-                      controller: bpController,
-                      decoration: InputDecoration(
-                        labelText: 'Blood Pressure (e.g., 120/80)',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Container(
+                      width: double.infinity,
+                      child: TextField(
+                        controller: bpController,
+                        decoration: InputDecoration(
+                          labelText: 'Blood Pressure (e.g., 120/80)',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.pink[600]!),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.pink[600]!),
-                        ),
+                        keyboardType: TextInputType.text,
                       ),
-                      keyboardType: TextInputType.text,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: pulseController,
-                      decoration: InputDecoration(
-                        labelText: 'Pulse (beats per minute)',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Container(
+                      width: double.infinity,
+                      child: TextField(
+                        controller: pulseController,
+                        decoration: InputDecoration(
+                          labelText: 'Pulse (beats per minute)',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.pink[600]!),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.pink[600]!),
-                        ),
+                        keyboardType: TextInputType.number,
                       ),
-                      keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: tempController,
-                      decoration: InputDecoration(
-                        labelText: 'Temperature (°F) - Optional',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Container(
+                      width: double.infinity,
+                      child: TextField(
+                        controller: tempController,
+                        decoration: InputDecoration(
+                          labelText: 'Temperature (°F) - Optional',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.pink[600]!),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.pink[600]!),
-                        ),
+                        keyboardType: TextInputType.number,
                       ),
-                      keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: respController,
-                      decoration: InputDecoration(
-                        labelText: 'Respirations (per minute) - Optional',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    Container(
+                      width: double.infinity,
+                      child: TextField(
+                        controller: respController,
+                        decoration: InputDecoration(
+                          labelText: 'Respirations (per minute) - Optional',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: Colors.pink[600]!),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.pink[600]!),
-                        ),
+                        keyboardType: TextInputType.number,
                       ),
-                      keyboardType: TextInputType.number,
                     ),
                     const SizedBox(height: 16),
                     Container(

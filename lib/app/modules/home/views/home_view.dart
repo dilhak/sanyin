@@ -539,6 +539,13 @@ class HomeView extends GetView<HomeController> {
                         onPressed: () {
                           controller.toggleClockInOut();
                           Get.back();
+                          Get.snackbar(
+                            'Success',
+                            'Clock ${controller.isOnShift.value ? 'In' : 'Out'} successful',
+                            backgroundColor: Colors.green[100],
+                            colorText: Colors.green[800],
+                            duration: const Duration(seconds: 2),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue,
@@ -662,6 +669,7 @@ class HomeView extends GetView<HomeController> {
             Obx(() => controller.isOnBreak.value ? Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: Colors.grey[50],
@@ -726,6 +734,13 @@ class HomeView extends GetView<HomeController> {
                         onPressed: () {
                           controller.toggleBreak();
                           Get.back();
+                          Get.snackbar(
+                            'Success',
+                            'Break ${controller.isOnBreak.value ? 'ended' : 'started'} successfully',
+                            backgroundColor: Colors.orange[100],
+                            colorText: Colors.orange[800],
+                            duration: const Duration(seconds: 2),
+                          );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.orange,
@@ -813,33 +828,36 @@ class HomeView extends GetView<HomeController> {
                 ),
                 const SizedBox(height: 24),
                 // Input field
-                TextField(
-                  controller: noteController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'e.g., Fire drill at 10:30, Visitors arriving',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
+                Container(
+                  width: double.infinity,
+                  child: TextField(
+                    controller: noteController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'e.g., Fire drill at 10:30, Visitors arriving',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.green, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                    ),
+                    style: const TextStyle(
                       fontSize: 16,
+                      color: Colors.black87,
                     ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                  ),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -880,9 +898,26 @@ class HomeView extends GetView<HomeController> {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            controller.setHouseNote(noteController.text);
-                            controller.addHouseNote();
-                            Get.back();
+                            if (noteController.text.trim().isNotEmpty) {
+                              controller.setHouseNote(noteController.text);
+                              controller.addHouseNote();
+                              Get.back();
+                              Get.snackbar(
+                                'Success',
+                                'House note added successfully',
+                                backgroundColor: Colors.green[100],
+                                colorText: Colors.green[800],
+                                duration: const Duration(seconds: 2),
+                              );
+                            } else {
+                              Get.snackbar(
+                                'Error',
+                                'Please enter a note',
+                                backgroundColor: Colors.red[100],
+                                colorText: Colors.red[800],
+                                duration: const Duration(seconds: 2),
+                              );
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
@@ -995,6 +1030,7 @@ class HomeView extends GetView<HomeController> {
               child: Obx(() => Column(
                 children: [
                   Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
@@ -1018,6 +1054,7 @@ class HomeView extends GetView<HomeController> {
                   ),
                   const SizedBox(height: 16),
                   Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       color: Colors.grey[50],
@@ -1082,8 +1119,25 @@ class HomeView extends GetView<HomeController> {
                       ),
                       child: ElevatedButton(
                         onPressed: () {
-                          controller.updateSupplies();
-                          Get.back();
+                          if (controller.selectedSupplyItem.value.isNotEmpty) {
+                            controller.updateSupplies();
+                            Get.back();
+                            Get.snackbar(
+                              'Success',
+                              'Supply status updated successfully',
+                              backgroundColor: Colors.purple[100],
+                              colorText: Colors.purple[800],
+                              duration: const Duration(seconds: 2),
+                            );
+                          } else {
+                            Get.snackbar(
+                              'Error',
+                              'Please select a supply item',
+                              backgroundColor: Colors.red[100],
+                              colorText: Colors.red[800],
+                              duration: const Duration(seconds: 2),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.purple,
@@ -1172,6 +1226,7 @@ class HomeView extends GetView<HomeController> {
                 const SizedBox(height: 24),
                 // Type dropdown
                 Obx(() => Container(
+                  width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: Colors.grey[50],
@@ -1195,33 +1250,36 @@ class HomeView extends GetView<HomeController> {
                 )),
                 const SizedBox(height: 16),
                 // Description field
-                TextField(
-                  controller: descriptionController,
-                  maxLines: 3,
-                  decoration: InputDecoration(
-                    hintText: 'Describe the issue...',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
+                Container(
+                  width: double.infinity,
+                  child: TextField(
+                    controller: descriptionController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Describe the issue...',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.red, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                    ),
+                    style: const TextStyle(
                       fontSize: 16,
+                      color: Colors.black87,
                     ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Colors.red, width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                  ),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -1262,9 +1320,26 @@ class HomeView extends GetView<HomeController> {
                         ),
                         child: ElevatedButton(
                           onPressed: () {
-                            controller.setComplaintDescription(descriptionController.text);
-                            controller.submitComplaint();
-                            Get.back();
+                            if (descriptionController.text.trim().isNotEmpty) {
+                              controller.setComplaintDescription(descriptionController.text);
+                              controller.submitComplaint();
+                              Get.back();
+                              Get.snackbar(
+                                'Success',
+                                'Complaint submitted successfully',
+                                backgroundColor: Colors.red[100],
+                                colorText: Colors.red[800],
+                                duration: const Duration(seconds: 2),
+                              );
+                            } else {
+                              Get.snackbar(
+                                'Error',
+                                'Please describe the issue',
+                                backgroundColor: Colors.red[100],
+                                colorText: Colors.red[800],
+                                duration: const Duration(seconds: 2),
+                              );
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
@@ -1427,20 +1502,23 @@ class HomeView extends GetView<HomeController> {
                     child: Row(
                       children: [
                         Expanded(
-                          child: TextField(
-                            controller: newItemController,
-                            decoration: InputDecoration(
-                              hintText: 'Add new item...',
-                              hintStyle: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 16,
+                          child: Container(
+                            width: double.infinity,
+                            child: TextField(
+                              controller: newItemController,
+                              decoration: InputDecoration(
+                                hintText: 'Add new item...',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.zero,
                               ),
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.zero,
-                            ),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
                         ),
@@ -1458,8 +1536,25 @@ class HomeView extends GetView<HomeController> {
                           ),
                           child: ElevatedButton(
                             onPressed: () {
-                              controller.addCustomChecklistItem(newItemController.text);
-                              newItemController.clear();
+                              if (newItemController.text.trim().isNotEmpty) {
+                                controller.addCustomChecklistItem(newItemController.text);
+                                newItemController.clear();
+                                Get.snackbar(
+                                  'Success',
+                                  'Checklist item added successfully',
+                                  backgroundColor: Colors.teal[100],
+                                  colorText: Colors.teal[800],
+                                  duration: const Duration(seconds: 2),
+                                );
+                              } else {
+                                Get.snackbar(
+                                  'Error',
+                                  'Please enter an item name',
+                                  backgroundColor: Colors.red[100],
+                                  colorText: Colors.red[800],
+                                  duration: const Duration(seconds: 2),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.teal,

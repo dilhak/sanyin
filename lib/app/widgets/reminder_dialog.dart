@@ -38,27 +38,30 @@ class ReminderDialog {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey[200]!),
                           ),
-                          child: TextField(
-                            controller: titleController,
-                            decoration: InputDecoration(
-                              labelText: 'Reminder Title',
-                              hintText: 'e.g., Medication reminder',
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.all(16),
-                              labelStyle: TextStyle(color: Colors.grey[600]),
-                              suffixIcon: titleController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: Icon(Icons.clear, color: Colors.grey[500]),
-                                      onPressed: () {
-                                        titleController.clear();
-                                        setState(() {});
-                                      },
-                                    )
-                                  : null,
+                          child: Container(
+                            width: double.infinity,
+                            child: TextField(
+                              controller: titleController,
+                              decoration: InputDecoration(
+                                labelText: 'Reminder Title',
+                                hintText: 'e.g., Medication reminder',
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.all(16),
+                                labelStyle: TextStyle(color: Colors.grey[600]),
+                                suffixIcon: titleController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: Icon(Icons.clear, color: Colors.grey[500]),
+                                        onPressed: () {
+                                          titleController.clear();
+                                          setState(() {});
+                                        },
+                                      )
+                                    : null,
+                              ),
+                              onChanged: (value) {
+                                setState(() {});
+                              },
                             ),
-                            onChanged: (value) {
-                              setState(() {});
-                            },
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -69,28 +72,31 @@ class ReminderDialog {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(color: Colors.grey[200]!),
                           ),
-                          child: TextField(
-                            controller: descriptionController,
-                            maxLines: 3,
-                            decoration: InputDecoration(
-                              labelText: 'Description',
-                              hintText: 'e.g., Give medication to $clientName',
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.all(16),
-                              labelStyle: TextStyle(color: Colors.grey[600]),
-                              suffixIcon: descriptionController.text.isNotEmpty
-                                  ? IconButton(
-                                      icon: Icon(Icons.clear, color: Colors.grey[500]),
-                                      onPressed: () {
-                                        descriptionController.clear();
-                                        setState(() {});
-                                      },
-                                    )
-                                  : null,
+                          child: Container(
+                            width: double.infinity,
+                            child: TextField(
+                              controller: descriptionController,
+                              maxLines: 3,
+                              decoration: InputDecoration(
+                                labelText: 'Description',
+                                hintText: 'e.g., Give medication to $clientName',
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.all(16),
+                                labelStyle: TextStyle(color: Colors.grey[600]),
+                                suffixIcon: descriptionController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: Icon(Icons.clear, color: Colors.grey[500]),
+                                        onPressed: () {
+                                          descriptionController.clear();
+                                          setState(() {});
+                                        },
+                                      )
+                                    : null,
+                              ),
+                              onChanged: (value) {
+                                setState(() {});
+                              },
                             ),
-                            onChanged: (value) {
-                              setState(() {});
-                            },
                           ),
                         ),
                         const SizedBox(height: 24),

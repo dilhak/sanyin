@@ -210,38 +210,41 @@ class PhotoCaptureView extends GetView<PhotoCaptureController> {
                     ],
                   ),
                   const SizedBox(height: 8),
-                                     TextField(
-                     controller: controller.notesController,
-                     focusNode: controller.notesFocusNode,
-                     maxLines: 3,
-                     textInputAction: TextInputAction.done,
-                     onSubmitted: (_) => FocusScope.of(context).unfocus(),
-                     decoration: InputDecoration(
-                       hintText: 'Add notes about this photo...',
-                       border: OutlineInputBorder(
-                         borderRadius: BorderRadius.circular(12),
-                         borderSide: BorderSide(color: Colors.grey[300]!),
-                       ),
-                       enabledBorder: OutlineInputBorder(
-                         borderRadius: BorderRadius.circular(12),
-                         borderSide: BorderSide(color: Colors.grey[300]!),
-                       ),
-                       focusedBorder: OutlineInputBorder(
-                         borderRadius: BorderRadius.circular(12),
-                         borderSide: BorderSide(color: Colors.blue[600]!),
-                       ),
-                       filled: true,
-                       fillColor: Colors.grey[50],
-                       contentPadding: const EdgeInsets.symmetric(
-                         horizontal: 16,
-                         vertical: 12,
-                       ),
-                       suffixIcon: IconButton(
-                         icon: Icon(Icons.keyboard_hide, color: Colors.grey[600]),
-                         onPressed: () => FocusScope.of(context).unfocus(),
-                       ),
-                     ),
-                   ),
+                                     Container(
+                                       width: double.infinity,
+                                       child: TextField(
+                                         controller: controller.notesController,
+                                         focusNode: controller.notesFocusNode,
+                                         maxLines: 3,
+                                         textInputAction: TextInputAction.done,
+                                         onSubmitted: (_) => FocusScope.of(context).unfocus(),
+                                         decoration: InputDecoration(
+                                           hintText: 'Add notes about this photo...',
+                                           border: OutlineInputBorder(
+                                             borderRadius: BorderRadius.circular(12),
+                                             borderSide: BorderSide(color: Colors.grey[300]!),
+                                           ),
+                                           enabledBorder: OutlineInputBorder(
+                                             borderRadius: BorderRadius.circular(12),
+                                             borderSide: BorderSide(color: Colors.grey[300]!),
+                                           ),
+                                           focusedBorder: OutlineInputBorder(
+                                             borderRadius: BorderRadius.circular(12),
+                                             borderSide: BorderSide(color: Colors.blue[600]!),
+                                           ),
+                                           filled: true,
+                                           fillColor: Colors.grey[50],
+                                           contentPadding: const EdgeInsets.symmetric(
+                                             horizontal: 16,
+                                             vertical: 12,
+                                           ),
+                                           suffixIcon: IconButton(
+                                             icon: Icon(Icons.keyboard_hide, color: Colors.grey[600]),
+                                             onPressed: () => FocusScope.of(context).unfocus(),
+                                           ),
+                                         ),
+                                       ),
+                                     ),
                 ],
               ),
             ),
