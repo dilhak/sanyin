@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
 
-import '../modules/home/bindings/home_binding.dart';
-import '../modules/home/views/home_view.dart';
+import '../modules/tasks/bindings/tasks_binding.dart';
+import '../modules/tasks/views/tasks_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
 import '../modules/client/bindings/client_dashboard_binding.dart';
@@ -27,13 +27,13 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.HOME;
+  static const INITIAL = Routes.TASKS;
 
   static final routes = [
     GetPage(
-      name: _Paths.HOME,
-      page: () => const HomeView(),
-      binding: HomeBinding(),
+      name: _Paths.TASKS,
+      page: () => const TasksView(),
+      binding: TasksBinding(),
     ),
     GetPage(
       name: _Paths.SPLASH,
@@ -78,7 +78,7 @@ class AppPages {
     GetPage(
       name: _Paths.FACILITY_HISTORY,
       page: () => const FacilityHistoryView(),
-      binding: HomeBinding(),
+      binding: TasksBinding(),
     ),
     GetPage(
       name: _Paths.FACILITY_LOGS,

@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import '../modules/client/models/client_model.dart';
 import '../modules/care_log/models/care_log_model.dart';
 import '../modules/facility_logs/models/facility_log_model.dart';
+import '../modules/tasks/models/task_model.dart';
 import '../models/reminder_model.dart';
 import '../core/error_handler.dart';
 import '../core/retry_mechanism.dart';
@@ -30,7 +31,7 @@ class DatabaseService {
       String path = join(await getDatabasesPath(), 'sanyin.db');
       return await openDatabase(
         path,
-        version: 4, // Increment version to trigger migration
+        version: 5, // Increment version to trigger migration
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
       );
@@ -108,6 +109,26 @@ class DatabaseService {
         resolvedBy TEXT
       )
     ''');
+
+    // Create tasks table
+    await db.execute('''
+      CREATE TABLE tasks(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT,
+        createdAt TEXT NOT NULL,
+        dueDate TEXT,
+        priority TEXT NOT NULL,
+        status TEXT NOT NULL,
+        assignedTo TEXT,
+        category TEXT,
+        isRecurring INTEGER NOT NULL DEFAULT 0,
+        recurrencePattern TEXT,
+        completedAt TEXT,
+        completedBy TEXT,
+        notes TEXT
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -157,6 +178,28 @@ class DatabaseService {
         // Column might already exist, ignore error
         print('homeId column might already exist: $e');
       }
+    }
+    
+    if (oldVersion < 5) {
+      // Add tasks table for version 5
+      await db.execute('''
+        CREATE TABLE tasks(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          description TEXT,
+          createdAt TEXT NOT NULL,
+          dueDate TEXT,
+          priority TEXT NOT NULL,
+          status TEXT NOT NULL,
+          assignedTo TEXT,
+          category TEXT,
+          isRecurring INTEGER NOT NULL DEFAULT 0,
+          recurrencePattern TEXT,
+          completedAt TEXT,
+          completedBy TEXT,
+          notes TEXT
+        )
+      ''');
     }
   }
 
@@ -524,6 +567,98 @@ class DatabaseService {
     } catch (e) {
       throw AppError(
         message: 'Failed to delete facility log',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  // Task operations
+  Future<int> insertTask(Task task) async {
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          return await db.insert('tasks', task.toMap());
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to save task',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Save task',
+    );
+  }
+
+  Future<List<Task>> getAllTasks() async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'tasks',
+        orderBy: 'createdAt DESC',
+      );
+      return List.generate(maps.length, (i) => Task.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load tasks',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<Task?> getTask(int id) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'tasks',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        return Task.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load task details',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<int> updateTask(Task task) async {
+    try {
+      final db = await database;
+      return await db.update(
+        'tasks',
+        task.toMap(),
+        where: 'id = ?',
+        whereArgs: [task.id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to update task',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<int> deleteTask(int id) async {
+    try {
+      final db = await database;
+      return await db.delete(
+        'tasks',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to delete task',
         type: ErrorType.database,
         originalError: e,
       );
