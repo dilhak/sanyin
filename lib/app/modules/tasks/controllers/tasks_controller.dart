@@ -41,6 +41,7 @@ class TasksController extends GetxController {
     assignedToController.dispose();
     categoryController.dispose();
     notesController.dispose();
+    tasks.clear();
     super.onClose();
   }
 
@@ -383,7 +384,10 @@ class TasksController extends GetxController {
               children: [
                 Expanded(
                   child: TextButton(
-                    onPressed: () => Get.back(),
+                    onPressed: () {
+                      _clearForm();
+                      Get.back();
+                    },
                     child: const Text('Cancel'),
                   ),
                 ),
@@ -413,6 +417,7 @@ class TasksController extends GetxController {
                             notes: notesController.text.isEmpty ? null : notesController.text,
                           );
                         }
+                        _clearForm();
                         Get.back();
                       }
                     },
@@ -424,6 +429,8 @@ class TasksController extends GetxController {
           ],
         ),
       ),
+      isScrollControlled: true,
+      enableDrag: true,
     );
   }
 

@@ -598,6 +598,7 @@ class DatabaseService {
       final List<Map<String, dynamic>> maps = await db.query(
         'tasks',
         orderBy: 'createdAt DESC',
+        limit: 1000, // Limit to prevent memory issues
       );
       return List.generate(maps.length, (i) => Task.fromMap(maps[i]));
     } catch (e) {

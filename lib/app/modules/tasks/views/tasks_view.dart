@@ -91,6 +91,7 @@ class TasksView extends GetView<TasksController> {
                     final task = filteredTasks[index];
                     return _buildTaskCard(task);
                   },
+                  cacheExtent: 100, // Optimize scrolling performance
                 ),
               );
             }),
@@ -422,6 +423,8 @@ class TasksView extends GetView<TasksController> {
           ],
         ),
       ),
+      isScrollControlled: true,
+      enableDrag: true,
     );
   }
 
