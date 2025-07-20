@@ -395,6 +395,8 @@ class FacilityHistoryView extends GetView<HomeController> {
                   child: TextField(
                     controller: descriptionController,
                     maxLines: 3,
+                    enableInteractiveSelection: true,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       hintText: 'Edit description...',
                       hintStyle: TextStyle(

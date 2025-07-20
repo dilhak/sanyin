@@ -216,6 +216,8 @@ class PhotoCaptureView extends GetView<PhotoCaptureController> {
                                          controller: controller.notesController,
                                          focusNode: controller.notesFocusNode,
                                          maxLines: 3,
+                                         enableInteractiveSelection: true,
+                                         textCapitalization: TextCapitalization.sentences,
                                          textInputAction: TextInputAction.done,
                                          onSubmitted: (_) => FocusScope.of(context).unfocus(),
                                          decoration: InputDecoration(

@@ -833,6 +833,8 @@ class HomeView extends GetView<HomeController> {
                   child: TextField(
                     controller: noteController,
                     maxLines: 3,
+                    enableInteractiveSelection: true,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       hintText: 'e.g., Fire drill at 10:30, Visitors arriving',
                       hintStyle: TextStyle(
@@ -1255,6 +1257,8 @@ class HomeView extends GetView<HomeController> {
                   child: TextField(
                     controller: descriptionController,
                     maxLines: 3,
+                    enableInteractiveSelection: true,
+                    textCapitalization: TextCapitalization.sentences,
                     decoration: InputDecoration(
                       hintText: 'Describe the issue...',
                       hintStyle: TextStyle(

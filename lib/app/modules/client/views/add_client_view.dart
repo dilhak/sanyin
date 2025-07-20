@@ -243,6 +243,8 @@ class AddClientView extends GetView<AddClientController> {
             focusNode: focusNode,
             keyboardType: keyboardType,
             maxLines: maxLines,
+            enableInteractiveSelection: true,
+            textCapitalization: maxLines > 1 ? TextCapitalization.sentences : TextCapitalization.words,
             textInputAction: maxLines == 1 ? TextInputAction.next : TextInputAction.done,
             onSubmitted: (_) {
               // Auto-focus next field or dismiss keyboard

@@ -42,6 +42,8 @@ class ReminderDialog {
                             width: double.infinity,
                             child: TextField(
                               controller: titleController,
+                              enableInteractiveSelection: true,
+                              textCapitalization: TextCapitalization.sentences,
                               decoration: InputDecoration(
                                 labelText: 'Reminder Title',
                                 hintText: 'e.g., Medication reminder',
@@ -58,9 +60,6 @@ class ReminderDialog {
                                       )
                                     : null,
                               ),
-                              onChanged: (value) {
-                                setState(() {});
-                              },
                             ),
                           ),
                         ),
@@ -77,6 +76,8 @@ class ReminderDialog {
                             child: TextField(
                               controller: descriptionController,
                               maxLines: 3,
+                              enableInteractiveSelection: true,
+                              textCapitalization: TextCapitalization.sentences,
                               decoration: InputDecoration(
                                 labelText: 'Description',
                                 hintText: 'e.g., Give medication to $clientName',
@@ -93,9 +94,6 @@ class ReminderDialog {
                                       )
                                     : null,
                               ),
-                              onChanged: (value) {
-                                setState(() {});
-                              },
                             ),
                           ),
                         ),
