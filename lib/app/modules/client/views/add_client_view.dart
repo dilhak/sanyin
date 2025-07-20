@@ -81,97 +81,94 @@ class AddClientView extends GetView<AddClientController> {
           ),
         ],
       ),
-      body: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Profile section
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    // Avatar placeholder
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.blue[100],
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.person_add,
-                        size: 40,
-                        color: Colors.blue[600],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Client Information',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Profile section
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              const SizedBox(height: 20),
-              
-              // Form fields
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.1),
-                      spreadRadius: 1,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
+              child: Column(
+                children: [
+                  // Avatar placeholder
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.blue[100],
+                      shape: BoxShape.circle,
                     ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    _buildTextField(
-                      context: context,
-                      controller: controller.nameController,
-                      focusNode: controller.nameFocusNode,
-                      label: 'Full Name',
-                      icon: Icons.person,
-                      isRequired: true,
+                    child: Icon(
+                      Icons.person_add,
+                      size: 40,
+                      color: Colors.blue[600],
                     ),
-                    const SizedBox(height: 16),
-                    _buildTextField(
-                      context: context,
-                      controller: controller.addressController,
-                      focusNode: controller.addressFocusNode,
-                      label: 'Home',
-                      icon: Icons.home,
-                      maxLines: 2,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Client Information',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            
+            // Form fields
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    spreadRadius: 1,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  _buildTextField(
+                    context: context,
+                    controller: controller.nameController,
+                    focusNode: controller.nameFocusNode,
+                    label: 'Full Name',
+                    icon: Icons.person,
+                    isRequired: true,
+                  ),
+                  const SizedBox(height: 16),
+                  _buildTextField(
+                    context: context,
+                    controller: controller.addressController,
+                    focusNode: controller.addressFocusNode,
+                    label: 'Home',
+                    icon: Icons.home,
+                    maxLines: 2,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );

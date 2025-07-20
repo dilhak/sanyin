@@ -4,6 +4,7 @@ import '../models/client_model.dart';
 import '../../../services/database_service.dart';
 import '../../../core/error_handler.dart';
 import '../../../core/validation.dart';
+import '../../../widgets/universal_popup.dart';
 
 class EditClientController extends GetxController {
   final DatabaseService _databaseService = DatabaseService();
@@ -18,6 +19,8 @@ class EditClientController extends GetxController {
 
   late Client client;
   final RxBool isLoading = false.obs;
+  final RxString selectedHome = ''.obs;
+  final RxList<String> availableHomes = <String>[].obs;
 
   @override
   void onInit() {
@@ -25,6 +28,8 @@ class EditClientController extends GetxController {
     client = Get.arguments as Client;
     nameController.text = client.name;
     addressController.text = client.address ?? '';
+    selectedHome.value = client.address ?? '';
+    _loadAvailableHomes();
   }
 
   @override
@@ -49,7 +54,7 @@ class EditClientController extends GetxController {
       final updatedClient = Client(
         id: client.id,
         name: nameController.text.trim(),
-        address: addressController.text.trim().isEmpty ? null : addressController.text.trim(),
+        address: selectedHome.value.isEmpty ? null : selectedHome.value,
         phoneNumber: client.phoneNumber,
         emergencyContact: client.emergencyContact,
         medicalNotes: client.medicalNotes,
@@ -76,5 +81,58 @@ class EditClientController extends GetxController {
     }
     
     return true;
+  }
+
+  Future<void> _loadAvailableHomes() async {
+    try {
+      final clients = await _databaseService.getClients();
+      final homeSet = <String>{};
+      
+      for (final client in clients) {
+        if (client.address != null && client.address!.isNotEmpty) {
+          homeSet.add(client.address!);
+        }
+      }
+      
+      availableHomes.value = homeSet.toList()..sort();
+    } catch (e) {
+      // Handle error silently for now
+      availableHomes.clear();
+    }
+  }
+
+  void selectHome(String home) {
+    selectedHome.value = home;
+    addressController.text = home;
+  }
+
+  void showAddNewHomeDialog() {
+    UniversalPopup.showInputDialog(
+      title: 'Add New Home',
+      hintText: 'Enter new home name',
+      onConfirm: (homeName) {
+        _addNewHomeFromDialog(homeName);
+      },
+    );
+  }
+
+  void _addNewHomeFromDialog(String homeName) {
+    final newHome = homeName.trim();
+    if (newHome.isEmpty) {
+      _errorHandler.showWarningSnackbar('Please enter a home name');
+      return;
+    }
+
+    if (availableHomes.contains(newHome)) {
+      _errorHandler.showWarningSnackbar('This home already exists');
+      return;
+    }
+
+    availableHomes.add(newHome);
+    availableHomes.sort();
+    selectedHome.value = newHome;
+    addressController.text = newHome;
+    
+    _errorHandler.showSuccessSnackbar('New home added successfully');
   }
 } 

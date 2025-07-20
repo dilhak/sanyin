@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/client_dashboard_controller.dart';
 import '../models/client_model.dart';
-import '../../../widgets/universal_popup.dart';
 
 class ClientDashboardView extends GetView<ClientDashboardController> {
   const ClientDashboardView({super.key});
@@ -382,22 +381,6 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
                     maxLines: 1,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: IconButton(
-                    onPressed: () => _showClientActions(client),
-                    icon: Icon(Icons.more_vert, color: Colors.grey[600], size: 18),
-                    padding: const EdgeInsets.all(8),
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -406,37 +389,7 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
     );
   }
 
-  void _showClientActions(Client client) {
-    UniversalPopup.show(
-      title: client.name,
-      subtitle: 'Select an action',
-      icon: Icons.people,
-      color: Colors.blue,
-      actions: [
-        PopupAction(
-          title: 'Care Log',
-          icon: Icons.medical_services,
-          color: Colors.green,
-          onTap: () => controller.handleClientAction('care', client),
-        ),
-        PopupAction(
-          title: 'Edit',
-          icon: Icons.edit,
-          color: Colors.blue,
-          onTap: () => controller.handleClientAction('edit', client),
-        ),
-        PopupAction(
-          title: 'Delete',
-          icon: Icons.delete,
-          color: Colors.red,
-          onTap: () {
-            Get.back();
-            _showDeleteConfirmation(client);
-          },
-        ),
-      ],
-    );
-  }
+
 
   void _showLocationSelector() {
     Get.bottomSheet(
@@ -539,24 +492,4 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
     );
   }
 
-  void _showDeleteConfirmation(Client client) {
-    UniversalPopup.showConfirmation(
-      title: 'Delete Client',
-      message: 'Are you sure you want to delete ${client.name}? This action cannot be undone.',
-      confirmText: 'Delete',
-      cancelText: 'Cancel',
-      confirmColor: Colors.red,
-      onConfirm: () {
-        controller.deleteClient(client);
-        Get.snackbar(
-          'Client Deleted',
-          '${client.name} has been removed',
-          backgroundColor: Colors.red[100],
-          colorText: Colors.red[800],
-          duration: const Duration(seconds: 2),
-          snackPosition: SnackPosition.TOP,
-        );
-      },
-    );
-  }
 } 
