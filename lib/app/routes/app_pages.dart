@@ -19,6 +19,8 @@ import '../modules/care_log/views/care_log_history_view.dart';
 import '../modules/care_log/bindings/photo_capture_binding.dart';
 import '../modules/care_log/views/photo_capture_view.dart';
 import '../modules/home/views/facility_history_view.dart';
+import '../modules/facility_logs/bindings/facility_logs_binding.dart';
+import '../modules/facility_logs/views/facility_logs_view.dart';
 
 part 'app_routes.dart';
 
@@ -77,6 +79,11 @@ class AppPages {
       name: _Paths.FACILITY_HISTORY,
       page: () => const FacilityHistoryView(),
       binding: HomeBinding(),
+    ),
+    GetPage(
+      name: _Paths.FACILITY_LOGS,
+      page: () => const FacilityLogsView(),
+      binding: FacilityLogsBinding(),
     ),
   ];
 }

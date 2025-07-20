@@ -71,9 +71,12 @@ class ResponsiveBottomDrawer {
               ),
             ),
             const SizedBox(height: 24),
-            // Content
+            // Content with bottom padding
             Expanded(
-              child: content,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 32),
+                child: content,
+              ),
             ),
           ],
         ),

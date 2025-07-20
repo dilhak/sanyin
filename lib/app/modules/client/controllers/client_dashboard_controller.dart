@@ -4,42 +4,7 @@ import '../models/client_model.dart';
 import '../../../routes/app_pages.dart';
 import '../../../services/database_service.dart';
 import '../../../core/error_handler.dart';
-
-class FacilityLog {
-  final String action;
-  final String description;
-  final DateTime timestamp;
-  final String type;
-  final Map<String, dynamic>? additionalData;
-
-  FacilityLog({
-    required this.action,
-    required this.description,
-    required this.timestamp,
-    required this.type,
-    this.additionalData,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'action': action,
-      'description': description,
-      'timestamp': timestamp.toIso8601String(),
-      'type': type,
-      'additionalData': additionalData,
-    };
-  }
-
-  factory FacilityLog.fromJson(Map<String, dynamic> json) {
-    return FacilityLog(
-      action: json['action'],
-      description: json['description'],
-      timestamp: DateTime.parse(json['timestamp']),
-      type: json['type'],
-      additionalData: json['additionalData'],
-    );
-  }
-}
+import '../../facility_logs/models/facility_log_model.dart';
 
 class ClientDashboardController extends GetxController {
   final RxList<Client> clients = <Client>[].obs;
@@ -151,14 +116,45 @@ class ClientDashboardController extends GetxController {
 
   // Logging Methods
   void _addLog(String action, String description, String type, {Map<String, dynamic>? additionalData}) {
+    // Convert string type to FacilityLogType
+    FacilityLogType logType;
+    switch (type) {
+      case 'clock_in_out':
+        logType = FacilityLogType.clockInOut;
+        break;
+      case 'break':
+        logType = FacilityLogType.breakTime;
+        break;
+      case 'house_note':
+        logType = FacilityLogType.houseNote;
+        break;
+      case 'complaint':
+        logType = FacilityLogType.complaint;
+        break;
+      default:
+        logType = FacilityLogType.other;
+    }
+
+    // Get homeId from selected home
+    int homeId = 0;
+    if (selectedHome.value != 'All Homes') {
+      final clientWithAddress = clients.firstWhereOrNull(
+        (client) => client.address == selectedHome.value
+      );
+      if (clientWithAddress != null) {
+        homeId = clientWithAddress.id!;
+      }
+    }
+
     final log = FacilityLog(
+      homeId: homeId,
       action: action,
       description: description,
       timestamp: DateTime.now(),
-      type: type,
+      type: logType,
       additionalData: additionalData,
     );
-    facilityLogs.add(log);
+    
     // In a real app, you would save this to a database
     print('Facility Log: $action - $description at ${_formatDateTime(DateTime.now())}');
   }
@@ -269,12 +265,19 @@ class ClientDashboardController extends GetxController {
   }
 
   void viewFacilityHistory() {
-    Get.snackbar(
-      'Info',
-      'Facility history feature coming soon',
-      backgroundColor: Colors.blue[100],
-      colorText: Colors.blue[800],
-    );
+    // Get homeId based on selected home
+    int homeId = 0;
+    if (selectedHome.value != 'All Homes') {
+      // Find a client with this address to get the homeId
+      final clientWithAddress = clients.firstWhereOrNull(
+        (client) => client.address == selectedHome.value
+      );
+      if (clientWithAddress != null) {
+        homeId = clientWithAddress.id!;
+      }
+    }
+    
+    Get.toNamed(Routes.FACILITY_LOGS, arguments: {'homeId': homeId});
   }
 
   String getCurrentStatus() {

@@ -13,6 +13,7 @@ abstract class Routes {
   static const CARE_LOG_HISTORY = _Paths.CARE_LOG_HISTORY;
   static const PHOTO_CAPTURE = _Paths.PHOTO_CAPTURE;
   static const FACILITY_HISTORY = _Paths.FACILITY_HISTORY;
+  static const FACILITY_LOGS = _Paths.FACILITY_LOGS;
 }
 
 abstract class _Paths {
@@ -27,4 +28,5 @@ abstract class _Paths {
   static const CARE_LOG_HISTORY = '/care/history';
   static const PHOTO_CAPTURE = '/care/photo';
   static const FACILITY_HISTORY = '/facility/history';
+  static const FACILITY_LOGS = '/facility/logs';
 }

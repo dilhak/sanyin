@@ -248,92 +248,103 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
               );
             }),
             
-            // Quick Actions Section
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
+            // Quick Actions Section - Only show when a specific home is selected
+            Obx(() {
+              // Only show quick actions when a specific home is selected (not "All Homes")
+              if (controller.selectedHome.value == 'All Homes') {
+                return const SizedBox.shrink(); // Hide the section
+              }
+              
+              return Column(
                 children: [
-                  const Text(
-                    'Quick Actions',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Quick Actions - ${controller.selectedHome.value}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap to log facility activities and manage shift',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Tap to log facility activities and manage shift',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                  
+                  // Quick actions grid
+                  GridView.count(
+                    padding: const EdgeInsets.all(16),
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.9,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      _buildActionCard(
+                        icon: Icons.access_time,
+                        title: 'Clock In/Out',
+                        subtitle: 'Toggle shift status',
+                        color: Colors.blue,
+                        onTap: () => _showClockInOutDialog(),
+                      ),
+                      _buildActionCard(
+                        icon: Icons.coffee,
+                        title: 'Break',
+                        subtitle: 'Start/End break',
+                        color: Colors.orange,
+                        onTap: () => _showBreakDialog(),
+                      ),
+                      _buildActionCard(
+                        icon: Icons.note,
+                        title: 'House Note',
+                        subtitle: 'Quick facility notes',
+                        color: Colors.green,
+                        onTap: () => _showHouseNoteDialog(),
+                      ),
+                      _buildActionCard(
+                        icon: Icons.inventory,
+                        title: 'Supplies',
+                        subtitle: 'Check supply status',
+                        color: Colors.purple,
+                        onTap: () => _showSuppliesDialog(),
+                      ),
+                      _buildActionCard(
+                        icon: Icons.report_problem,
+                        title: 'Complaint/Concern',
+                        subtitle: 'Report issues',
+                        color: Colors.red,
+                        onTap: () => _showComplaintDialog(),
+                      ),
+                      _buildActionCard(
+                        icon: Icons.checklist,
+                        title: 'Shift Checklist',
+                        subtitle: 'Complete shift tasks',
+                        color: Colors.teal,
+                        onTap: () => _showChecklistDialog(),
+                      ),
+                      _buildActionCard(
+                        icon: Icons.history,
+                        title: 'Facility History',
+                        subtitle: 'View activity logs',
+                        color: Colors.indigo,
+                        onTap: () => controller.viewFacilityHistory(),
+                      ),
+                    ],
                   ),
                 ],
-              ),
-            ),
-            
-            // Quick actions grid
-            GridView.count(
-              padding: const EdgeInsets.all(16),
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.9,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                _buildActionCard(
-                  icon: Icons.access_time,
-                  title: 'Clock In/Out',
-                  subtitle: 'Toggle shift status',
-                  color: Colors.blue,
-                  onTap: () => _showClockInOutDialog(),
-                ),
-                _buildActionCard(
-                  icon: Icons.coffee,
-                  title: 'Break',
-                  subtitle: 'Start/End break',
-                  color: Colors.orange,
-                  onTap: () => _showBreakDialog(),
-                ),
-                _buildActionCard(
-                  icon: Icons.note,
-                  title: 'House Note',
-                  subtitle: 'Quick facility notes',
-                  color: Colors.green,
-                  onTap: () => _showHouseNoteDialog(),
-                ),
-                _buildActionCard(
-                  icon: Icons.inventory,
-                  title: 'Supplies',
-                  subtitle: 'Check supply status',
-                  color: Colors.purple,
-                  onTap: () => _showSuppliesDialog(),
-                ),
-                _buildActionCard(
-                  icon: Icons.report_problem,
-                  title: 'Complaint/Concern',
-                  subtitle: 'Report issues',
-                  color: Colors.red,
-                  onTap: () => _showComplaintDialog(),
-                ),
-                _buildActionCard(
-                  icon: Icons.checklist,
-                  title: 'Shift Checklist',
-                  subtitle: 'Complete shift tasks',
-                  color: Colors.teal,
-                  onTap: () => _showChecklistDialog(),
-                ),
-                _buildActionCard(
-                  icon: Icons.history,
-                  title: 'Facility History',
-                  subtitle: 'View activity logs',
-                  color: Colors.indigo,
-                  onTap: () => controller.viewFacilityHistory(),
-                ),
-              ],
-            ),
+              );
+            }),
             
             const SizedBox(height: 100), // Bottom padding for bottom navigation
           ],

@@ -2,6 +2,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../modules/client/models/client_model.dart';
 import '../modules/care_log/models/care_log_model.dart';
+import '../modules/facility_logs/models/facility_log_model.dart';
 import '../models/reminder_model.dart';
 import '../core/error_handler.dart';
 import '../core/retry_mechanism.dart';
@@ -29,7 +30,7 @@ class DatabaseService {
       String path = join(await getDatabasesPath(), 'sanyin.db');
       return await openDatabase(
         path,
-        version: 2,
+        version: 4, // Increment version to trigger migration
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
       );
@@ -87,6 +88,26 @@ class DatabaseService {
         FOREIGN KEY (clientId) REFERENCES clients (id)
       )
     ''');
+
+    // Create facility_logs table
+    await db.execute('''
+      CREATE TABLE facility_logs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        homeId INTEGER NOT NULL DEFAULT 0,
+        action TEXT NOT NULL,
+        description TEXT NOT NULL,
+        timestamp TEXT NOT NULL,
+        type TEXT NOT NULL,
+        priority TEXT NOT NULL,
+        staffMember TEXT,
+        location TEXT,
+        additionalData TEXT,
+        photoPath TEXT,
+        isResolved INTEGER NOT NULL DEFAULT 0,
+        resolvedAt TEXT,
+        resolvedBy TEXT
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -105,6 +126,37 @@ class DatabaseService {
           FOREIGN KEY (clientId) REFERENCES clients (id)
         )
       ''');
+    }
+    
+    if (oldVersion < 3) {
+      // Add facility_logs table for version 3
+      await db.execute('''
+        CREATE TABLE facility_logs(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          action TEXT NOT NULL,
+          description TEXT NOT NULL,
+          timestamp TEXT NOT NULL,
+          type TEXT NOT NULL,
+          priority TEXT NOT NULL,
+          staffMember TEXT,
+          location TEXT,
+          additionalData TEXT,
+          photoPath TEXT,
+          isResolved INTEGER NOT NULL DEFAULT 0,
+          resolvedAt TEXT,
+          resolvedBy TEXT
+        )
+      ''');
+    }
+    
+    if (oldVersion < 4) {
+      // Add homeId column to existing facility_logs table
+      try {
+        await db.execute('ALTER TABLE facility_logs ADD COLUMN homeId INTEGER NOT NULL DEFAULT 0');
+      } catch (e) {
+        // Column might already exist, ignore error
+        print('homeId column might already exist: $e');
+      }
     }
   }
 
@@ -360,6 +412,118 @@ class DatabaseService {
     } catch (e) {
       throw AppError(
         message: 'Failed to delete reminder',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  // Facility log operations
+  Future<int> insertFacilityLog(FacilityLog facilityLog) async {
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          return await db.insert('facility_logs', facilityLog.toMap());
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to save facility log',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Save facility log',
+    );
+  }
+
+  Future<List<FacilityLog>> getFacilityLogsForHome(int homeId) async {
+    try {
+      final db = await database;
+      // Get logs for specific home AND legacy logs (homeId = 0)
+      final List<Map<String, dynamic>> maps = await db.query(
+        'facility_logs',
+        where: 'homeId = ? OR homeId = 0',
+        whereArgs: [homeId],
+        orderBy: 'timestamp DESC',
+      );
+      return List.generate(maps.length, (i) => FacilityLog.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load facility logs',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<List<FacilityLog>> getAllFacilityLogs() async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'facility_logs',
+        orderBy: 'timestamp DESC',
+      );
+      return List.generate(maps.length, (i) => FacilityLog.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load facility logs',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<FacilityLog?> getFacilityLog(int id) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'facility_logs',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        return FacilityLog.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load facility log details',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<int> updateFacilityLog(FacilityLog facilityLog) async {
+    try {
+      final db = await database;
+      return await db.update(
+        'facility_logs',
+        facilityLog.toMap(),
+        where: 'id = ?',
+        whereArgs: [facilityLog.id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to update facility log',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<int> deleteFacilityLog(int id) async {
+    try {
+      final db = await database;
+      return await db.delete(
+        'facility_logs',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to delete facility log',
         type: ErrorType.database,
         originalError: e,
       );
