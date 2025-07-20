@@ -1,44 +1,13 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
-class FacilityLog {
-  final String action;
-  final String description;
-  final DateTime timestamp;
-  final String type;
-  final Map<String, dynamic>? additionalData;
-
-  FacilityLog({
-    required this.action,
-    required this.description,
-    required this.timestamp,
-    required this.type,
-    this.additionalData,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'action': action,
-      'description': description,
-      'timestamp': timestamp.toIso8601String(),
-      'type': type,
-      'additionalData': additionalData,
-    };
-  }
-
-  factory FacilityLog.fromJson(Map<String, dynamic> json) {
-    return FacilityLog(
-      action: json['action'],
-      description: json['description'],
-      timestamp: DateTime.parse(json['timestamp']),
-      type: json['type'],
-      additionalData: json['additionalData'],
-    );
-  }
-}
+import 'dart:convert';
+import '../../../services/database_service.dart';
+import '../../../models/facility_log_model.dart';
 
 class HomeController extends GetxController {
+  final DatabaseService _databaseService = DatabaseService();
+
   // Clock In/Out
   final isOnShift = false.obs;
   final clockInTime = Rx<DateTime?>(null);
@@ -99,6 +68,10 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     _initializeChecklist();
+    // Load facility logs after a short delay to ensure database is ready
+    Future.delayed(const Duration(milliseconds: 100), () {
+      _loadFacilityLogs();
+    });
   }
 
   void _initializeChecklist() {
@@ -107,18 +80,39 @@ class HomeController extends GetxController {
     }
   }
 
+  void _loadFacilityLogs() async {
+    try {
+      final logs = await _databaseService.getFacilityLogs();
+      facilityLogs.assignAll(logs);
+    } catch (e) {
+      print('Failed to load facility logs: $e');
+      // Don't show error to user on app startup, just log it
+    }
+  }
+
   // Logging Methods
-  void _addLog(String action, String description, String type, {Map<String, dynamic>? additionalData}) {
+  void _addLog(String action, String description, String type, {Map<String, dynamic>? additionalData}) async {
     final log = FacilityLog(
       action: action,
       description: description,
       timestamp: DateTime.now(),
       type: type,
-      additionalData: additionalData,
+      additionalData: additionalData != null ? jsonEncode(additionalData) : null,
     );
-    facilityLogs.add(log);
-    // In a real app, you would save this to a database
-    print('Facility Log: $action - $description at ${_formatDateTime(DateTime.now())}');
+    
+    try {
+      await _databaseService.insertFacilityLog(log);
+      facilityLogs.add(log);
+      print('Facility Log: $action - $description at ${_formatDateTime(DateTime.now())}');
+    } catch (e) {
+      print('Failed to save facility log: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to save log to database',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+      );
+    }
   }
 
   // Clock In/Out Methods
@@ -391,14 +385,25 @@ class HomeController extends GetxController {
     return sortedLogs.take(limit).toList();
   }
 
-  void clearAllLogs() {
-    facilityLogs.clear();
-    Get.snackbar(
-      'Logs Cleared',
-      'All facility logs have been cleared',
-      backgroundColor: Colors.orange[100],
-      colorText: Colors.orange[800],
-    );
+  void clearAllLogs() async {
+    try {
+      await _databaseService.clearAllFacilityLogs();
+      facilityLogs.clear();
+      Get.snackbar(
+        'Logs Cleared',
+        'All facility logs have been cleared',
+        backgroundColor: Colors.orange[100],
+        colorText: Colors.orange[800],
+      );
+    } catch (e) {
+      print('Failed to clear facility logs: $e');
+      Get.snackbar(
+        'Error',
+        'Failed to clear logs from database',
+        backgroundColor: Colors.red[100],
+        colorText: Colors.red[800],
+      );
+    }
   }
 
   String getCurrentStatus() {

@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import '../modules/client/models/client_model.dart';
 import '../modules/care_log/models/care_log_model.dart';
 import '../models/reminder_model.dart';
+import '../models/facility_log_model.dart';
 import '../core/error_handler.dart';
 import '../core/retry_mechanism.dart';
 
@@ -27,12 +28,13 @@ class DatabaseService {
   Future<Database> _initDatabase() async {
     try {
       String path = join(await getDatabasesPath(), 'sanyin.db');
-      return await openDatabase(
+      final db = await openDatabase(
         path,
-        version: 2,
+        version: 3,
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
       );
+      return db;
     } catch (e) {
       throw AppError(
         message: 'Failed to initialize database',
@@ -87,6 +89,18 @@ class DatabaseService {
         FOREIGN KEY (clientId) REFERENCES clients (id)
       )
     ''');
+
+    // Create facility_logs table
+    await db.execute('''
+      CREATE TABLE facility_logs(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        action TEXT NOT NULL,
+        description TEXT NOT NULL,
+        timestamp TEXT NOT NULL,
+        type TEXT NOT NULL,
+        additionalData TEXT
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -103,6 +117,20 @@ class DatabaseService {
           frequency TEXT,
           createdAt INTEGER NOT NULL,
           FOREIGN KEY (clientId) REFERENCES clients (id)
+        )
+      ''');
+    }
+    
+    if (oldVersion < 3) {
+      // Add facility_logs table for version 3
+      await db.execute('''
+        CREATE TABLE facility_logs(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          action TEXT NOT NULL,
+          description TEXT NOT NULL,
+          timestamp TEXT NOT NULL,
+          type TEXT NOT NULL,
+          additionalData TEXT
         )
       ''');
     }
@@ -360,6 +388,91 @@ class DatabaseService {
     } catch (e) {
       throw AppError(
         message: 'Failed to delete reminder',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  // Facility log operations
+  Future<int> insertFacilityLog(FacilityLog facilityLog) async {
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          return await db.insert('facility_logs', facilityLog.toMap());
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to save facility log',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Save facility log',
+    );
+  }
+
+  Future<List<FacilityLog>> getFacilityLogs() async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'facility_logs',
+        orderBy: 'timestamp DESC',
+      );
+      return List.generate(maps.length, (i) => FacilityLog.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load facility logs',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<List<FacilityLog>> getFacilityLogsByType(String type) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'facility_logs',
+        where: 'type = ?',
+        whereArgs: [type],
+        orderBy: 'timestamp DESC',
+      );
+      return List.generate(maps.length, (i) => FacilityLog.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load facility logs by type',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<int> deleteFacilityLog(int id) async {
+    try {
+      final db = await database;
+      return await db.delete(
+        'facility_logs',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to delete facility log',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<int> clearAllFacilityLogs() async {
+    try {
+      final db = await database;
+      return await db.delete('facility_logs');
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to clear facility logs',
         type: ErrorType.database,
         originalError: e,
       );

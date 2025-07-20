@@ -358,38 +358,45 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
   void _showLocationSelector() {
     Get.bottomSheet(
       Container(
+        constraints: BoxConstraints(
+          maxHeight: Get.height * 0.8,
+        ),
         padding: const EdgeInsets.all(20),
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'Select Location',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 20),
+              const Text(
+                'Select Location',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            _buildLocationOption('Westfield', true),
-            _buildLocationOption('Eastfield', false),
-            _buildLocationOption('Northfield', false),
-            _buildLocationOption('Southfield', false),
-          ],
+              const SizedBox(height: 20),
+              _buildLocationOption('Westfield', true),
+              _buildLocationOption('Eastfield', false),
+              _buildLocationOption('Northfield', false),
+              _buildLocationOption('Southfield', false),
+            ],
+          ),
         ),
       ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
     );
   }
 

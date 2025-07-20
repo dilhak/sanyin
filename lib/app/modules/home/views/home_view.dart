@@ -278,7 +278,7 @@ class HomeView extends GetView<HomeController> {
                 // Already on home page, do nothing
                 break;
               case 1:
-                Get.toNamed('/clients');
+                Get.toNamed('/client/dashboard');
                 break;
               case 2:
                 Get.snackbar(
@@ -394,6 +394,9 @@ class HomeView extends GetView<HomeController> {
   void _showClockInOutDialog() {
     Get.bottomSheet(
       Container(
+        constraints: BoxConstraints(
+          maxHeight: Get.height * 0.8,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -581,6 +584,9 @@ class HomeView extends GetView<HomeController> {
   void _showBreakDialog() {
     Get.bottomSheet(
       Container(
+        constraints: BoxConstraints(
+          maxHeight: Get.height * 0.8,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -901,9 +907,9 @@ class HomeView extends GetView<HomeController> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (noteController.text.trim().isNotEmpty) {
+                              Get.back();
                               controller.setHouseNote(noteController.text);
                               controller.addHouseNote();
-                              Get.back();
                               Get.snackbar(
                                 'Success',
                                 'House note added successfully',
@@ -953,6 +959,9 @@ class HomeView extends GetView<HomeController> {
   void _showSuppliesDialog() {
     Get.bottomSheet(
       Container(
+        constraints: BoxConstraints(
+          maxHeight: Get.height * 0.8,
+        ),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
@@ -1325,9 +1334,9 @@ class HomeView extends GetView<HomeController> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (descriptionController.text.trim().isNotEmpty) {
+                              Get.back();
                               controller.setComplaintDescription(descriptionController.text);
                               controller.submitComplaint();
-                              Get.back();
                               Get.snackbar(
                                 'Success',
                                 'Complaint submitted successfully',

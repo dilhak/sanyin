@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
+import '../../../models/facility_log_model.dart';
 
 class FacilityHistoryView extends GetView<HomeController> {
   const FacilityHistoryView({super.key});
