@@ -200,7 +200,8 @@ class NotificationService {
         }
       }
 
-      final androidDetails = AndroidNotificationDetails(
+      // Show test notification
+      const androidDetails = AndroidNotificationDetails(
         'reminders_channel',
         'Reminders',
         channelDescription: 'Care reminders for clients',
@@ -210,29 +211,25 @@ class NotificationService {
         playSound: true,
         enableVibration: true,
         enableLights: true,
-        showWhen: true,
       );
 
-      final notificationDetails = NotificationDetails(android: androidDetails);
+      const notificationDetails = NotificationDetails(android: androidDetails);
 
-      print('Showing notification...');
       await _notifications.show(
-        999,
-        'Test Reminder',
-        'This is a test notification',
+        999999, // Use a unique ID for test notification
+        'Test Notification',
+        'This is a test notification from Sanyin',
         notificationDetails,
       );
       
-      print('Test notification shown successfully');
-      
-      // Check pending notifications
-      final pending = await getPendingNotifications();
-      print('Pending notifications: ${pending.length}');
-      
+      print('Test notification sent successfully');
     } catch (e) {
       print('Error showing test notification: $e');
-      print('Error stack trace: ${e.toString()}');
-      rethrow;
     }
+  }
+
+  void dispose() {
+    // Clean up any resources if needed
+    // FlutterLocalNotificationsPlugin doesn't require explicit disposal
   }
 } 

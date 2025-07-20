@@ -281,6 +281,19 @@ class FacilityLogsController extends GetxController {
     selectedDate.value = date;
   }
 
+  @override
+  void onClose() {
+    // Clear all reactive variables to prevent memory leaks
+    facilityLogs.clear();
+    selectedType.value = null;
+    selectedPriority.value = null;
+    showResolved.value = false;
+    selectedDate.value = null;
+    currentHomeId.value = 0;
+    
+    super.onClose();
+  }
+
   Color getLogTypeColor(FacilityLogType type) {
     switch (type) {
       case FacilityLogType.clockInOut:

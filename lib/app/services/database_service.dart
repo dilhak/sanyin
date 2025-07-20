@@ -34,6 +34,7 @@ class DatabaseService {
         version: 5, // Increment version to trigger migration
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
+        singleInstance: true, // Ensure single database instance
       );
     } catch (e) {
       throw AppError(
@@ -670,6 +671,13 @@ class DatabaseService {
   Future<void> close() async {
     final db = await database;
     await db.close();
+  }
+
+  Future<void> dispose() async {
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
   }
 
   Future<void> deleteDatabase() async {

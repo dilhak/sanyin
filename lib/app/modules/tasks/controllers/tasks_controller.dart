@@ -41,7 +41,17 @@ class TasksController extends GetxController {
     assignedToController.dispose();
     categoryController.dispose();
     notesController.dispose();
+    
+    // Clear all reactive variables to prevent memory leaks
     tasks.clear();
+    selectedStatus.value = null;
+    selectedPriority.value = null;
+    selectedDate.value = null;
+    selectedCategory.value = '';
+    selectedFormPriority.value = TaskPriority.medium;
+    selectedDueDate.value = null;
+    isRecurring.value = false;
+    
     super.onClose();
   }
 

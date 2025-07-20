@@ -36,6 +36,13 @@ class ClientDashboardController extends GetxController {
   void onClose() {
     houseNoteController.dispose();
     complaintController.dispose();
+    
+    // Clear all reactive variables to prevent memory leaks
+    clients.clear();
+    filteredClients.clear();
+    homes.clear();
+    facilityLogs.clear();
+    
     super.onClose();
   }
 

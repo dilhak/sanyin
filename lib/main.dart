@@ -3,7 +3,10 @@ import 'package:get/get.dart';
 import 'app/routes/app_pages.dart';
 import 'app/services/notification_service.dart';
 import 'app/core/error_handler.dart';
+import 'app/core/memory_manager.dart';
 import 'app/services/connectivity_service.dart';
+import 'app/services/database_service.dart';
+import 'app/services/photo_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,21 +14,27 @@ void main() async {
   // Initialize error handling
   final errorHandler = ErrorHandler();
   
-  // Initialize connectivity service
+  // Initialize services
   final connectivityService = ConnectivityService();
+  final notificationService = NotificationService();
+  final databaseService = DatabaseService();
+  final photoService = PhotoService();
+  
   try {
     await connectivityService.initialize();
-  } catch (e) {
-    errorHandler.logError(errorHandler.categorizeError(e));
-  }
-  
-  // Initialize notification service
-  final notificationService = NotificationService();
-  try {
     await notificationService.initialize();
   } catch (e) {
     errorHandler.logError(errorHandler.categorizeError(e));
   }
+  
+  // Register services for disposal
+  Get.put(connectivityService);
+  Get.put(notificationService);
+  Get.put(databaseService);
+  Get.put(photoService);
+  
+  // Log initial memory usage
+  MemoryManager.logMemoryUsage();
   
   runApp(
     GetMaterialApp(

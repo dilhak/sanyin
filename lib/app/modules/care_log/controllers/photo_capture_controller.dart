@@ -29,7 +29,24 @@ class PhotoCaptureController extends GetxController {
   void onClose() {
     notesController.dispose();
     notesFocusNode.dispose();
+    
+    // Clear reactive variables to prevent memory leaks
+    selectedPhotoPath.value = '';
+    isLoading.value = false;
+    
     super.onClose();
+  }
+
+  /// Clean up photo resources
+  Future<void> cleanupPhoto() async {
+    if (selectedPhotoPath.value.isNotEmpty) {
+      try {
+        await _photoService.deletePhoto(selectedPhotoPath.value);
+        selectedPhotoPath.value = '';
+      } catch (e) {
+        // Ignore cleanup errors
+      }
+    }
   }
 
   Future<void> takePhoto() async {

@@ -325,4 +325,19 @@ class CareLogHistoryController extends GetxController {
     selectedActivityType.value = null;
     selectedDate.value = null;
   }
+
+  void setDateFilter(DateTime? date) {
+    selectedDate.value = date;
+  }
+
+  @override
+  void onClose() {
+    // Clear all reactive variables to prevent memory leaks
+    careLogs.clear();
+    selectedClient.value = null;
+    selectedActivityType.value = null;
+    selectedDate.value = null;
+    
+    super.onClose();
+  }
 } 

@@ -25,9 +25,9 @@ class PhotoService {
 
       final XFile? image = await _picker.pickImage(
         source: ImageSource.camera,
-        imageQuality: 80,
-        maxWidth: 1024,
-        maxHeight: 1024,
+        imageQuality: 70, // Reduced from 80 to save memory
+        maxWidth: 800, // Reduced from 1024 to save memory
+        maxHeight: 800, // Reduced from 1024 to save memory
       );
 
       if (image != null) {
@@ -57,9 +57,9 @@ class PhotoService {
 
       final XFile? image = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 80,
-        maxWidth: 1024,
-        maxHeight: 1024,
+        imageQuality: 70, // Reduced from 80 to save memory
+        maxWidth: 800, // Reduced from 1024 to save memory
+        maxHeight: 800, // Reduced from 1024 to save memory
       );
 
       if (image != null) {
@@ -157,5 +157,32 @@ class PhotoService {
     } catch (e) {
       return '0B';
     }
+  }
+
+  /// Clean up old photos to prevent storage bloat
+  Future<void> cleanupOldPhotos({int maxPhotos = 100}) async {
+    try {
+      final paths = await getAllPhotoPaths();
+      if (paths.length > maxPhotos) {
+        // Sort by creation time (oldest first)
+        final files = paths.map((path) => File(path)).toList();
+        files.sort((a, b) => a.lastModifiedSync().compareTo(b.lastModifiedSync()));
+        
+        // Delete oldest photos
+        final toDelete = files.take(paths.length - maxPhotos);
+        for (final file in toDelete) {
+          if (await file.exists()) {
+            await file.delete();
+          }
+        }
+      }
+    } catch (e) {
+      // Ignore cleanup errors
+    }
+  }
+
+  void dispose() {
+    // Clean up any resources if needed
+    // ImagePicker doesn't require explicit disposal, but we can add cleanup here if needed
   }
 } 

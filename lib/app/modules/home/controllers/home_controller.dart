@@ -420,6 +420,10 @@ class HomeController extends GetxController {
   @override
   void onClose() {
     _stopBreakTimer();
+    // Clear all reactive variables to prevent memory leaks
+    facilityLogs.clear();
+    checklistItems.clear();
+    customChecklistItems.clear();
     super.onClose();
   }
 }

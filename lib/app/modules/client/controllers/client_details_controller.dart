@@ -36,6 +36,14 @@ class ClientDetailsController extends GetxController {
     }
   }
 
+  @override
+  void onClose() {
+    // Clear all reactive variables to prevent memory leaks
+    reminders.clear();
+    
+    super.onClose();
+  }
+
   void showMedicationActions() {
     UniversalPopup.show(
       title: 'Medication',
