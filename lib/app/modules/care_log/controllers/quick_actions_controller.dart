@@ -78,6 +78,53 @@ class QuickActionsController extends GetxController {
     );
   }
 
+  void showLocationActions() {
+    ResponsiveBottomDrawer.showActions(
+      title: 'Location & Presence',
+      subtitle: 'Where is $clientName?',
+      icon: Icons.location_on,
+      color: Colors.teal,
+      actions: [
+        PopupAction(
+          title: 'Bedroom',
+          icon: Icons.bed,
+          color: Colors.blue,
+          onTap: () => _logLocation('bedroom', 'Bedroom'),
+        ),
+        PopupAction(
+          title: 'Common Area',
+          icon: Icons.computer,
+          color: Colors.green,
+          onTap: () => _logLocation('common_area', 'Common Area'),
+        ),
+        PopupAction(
+          title: 'Outside - Alone',
+          icon: Icons.person,
+          color: Colors.orange,
+          onTap: () => _logLocation('outside_alone', 'Outside - Alone'),
+        ),
+        PopupAction(
+          title: 'Outside - DSP',
+          icon: Icons.people,
+          color: Colors.blue,
+          onTap: () => _logLocation('outside_dsp', 'Outside - DSP'),
+        ),
+        PopupAction(
+          title: 'With Family',
+          icon: Icons.family_restroom,
+          color: Colors.purple,
+          onTap: () => _logLocation('with_family', 'With Family'),
+        ),
+        PopupAction(
+          title: 'Out of Facility',
+          icon: Icons.business,
+          color: Colors.grey,
+          onTap: () => _logLocation('out_of_facility', 'Out of Facility'),
+        ),
+      ],
+    );
+  }
+
   void showHydrationActions() {
     UniversalPopup.show(
       title: 'Hydration',
@@ -275,6 +322,16 @@ class QuickActionsController extends GetxController {
       type,
       option,
       'Toileting: $type - $option',
+    );
+  }
+
+  void _logLocation(String type, String option) {
+    Get.back();
+    _saveCareLog(
+      CareActivityType.location,
+      type,
+      option,
+      'Location: $type - $option',
     );
   }
 

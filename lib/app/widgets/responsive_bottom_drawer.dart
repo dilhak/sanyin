@@ -116,9 +116,9 @@ class ResponsiveBottomDrawer {
       childAspectRatio = 1.1;
     }
     
-    // Calculate max height based on content
-    final estimatedHeight = (actions.length / crossAxisCount).ceil() * 120 + 200;
-    final maxDrawerHeight = (estimatedHeight / screenHeight).clamp(0.3, maxHeight);
+    // Calculate max height based on content with better estimation
+    final estimatedHeight = (actions.length / crossAxisCount).ceil() * 140 + 250;
+    final maxDrawerHeight = (estimatedHeight / screenHeight).clamp(0.4, maxHeight);
 
     show(
       title: title,
@@ -128,20 +128,22 @@ class ResponsiveBottomDrawer {
       maxHeight: maxDrawerHeight,
       content: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: childAspectRatio,
+        child: SingleChildScrollView(
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: childAspectRatio,
+            ),
+            itemCount: actions.length,
+            itemBuilder: (context, index) {
+              final action = actions[index];
+              return _buildActionButton(action);
+            },
           ),
-          itemCount: actions.length,
-          itemBuilder: (context, index) {
-            final action = actions[index];
-            return _buildActionButton(action);
-          },
         ),
       ),
     );

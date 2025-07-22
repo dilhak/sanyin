@@ -144,6 +144,13 @@ class QuickActionsView extends GetView<QuickActionsController> {
                     onTap: () => controller.showToiletingActions(),
                   ),
                   _buildActionCard(
+                    icon: Icons.location_on,
+                    title: 'Location & Presence',
+                    subtitle: 'Where is the client?',
+                    color: Colors.teal,
+                    onTap: () => controller.showLocationActions(),
+                  ),
+                  _buildActionCard(
                     icon: Icons.restaurant,
                     title: 'Meals',
                     subtitle: 'Nutrition & meals',

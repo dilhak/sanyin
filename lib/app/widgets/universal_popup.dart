@@ -39,16 +39,16 @@ class UniversalPopup {
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
             // Modern header with gradient background
             Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   // Icon container with gradient
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: 70,
+                    height: 70,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -70,27 +70,27 @@ class UniversalPopup {
                     child: Icon(
                       icon,
                       color: color,
-                      size: 36,
+                      size: 32,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   // Title with modern typography
                   Text(
                     title,
                     style: const TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.w700,
                       color: Colors.black87,
                       letterSpacing: -0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   // Subtitle with improved styling
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       color: Colors.grey[600],
                       height: 1.4,
                     ),
@@ -99,19 +99,21 @@ class UniversalPopup {
                 ],
               ),
             ),
-            // Modern action buttons
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: actions.map((action) => SizedBox(
-                  width: (Get.width - 80) / 2,
-                  child: _buildModernActionButton(action),
-                )).toList(),
+            // Modern action buttons with scrollable content
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: actions.map((action) => SizedBox(
+                    width: (Get.width - 80) / 2,
+                    child: _buildModernActionButton(action),
+                  )).toList(),
+                ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
           ],
         ),
       ),
@@ -155,14 +157,14 @@ class UniversalPopup {
                 borderRadius: BorderRadius.circular(3),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
             // Modern title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Text(
                 title,
                 style: const TextStyle(
-                  fontSize: 22,
+                  fontSize: 20,
                   fontWeight: FontWeight.w700,
                   color: Colors.black87,
                   letterSpacing: -0.5,
@@ -170,24 +172,22 @@ class UniversalPopup {
                 textAlign: TextAlign.center,
               ),
             ),
-            const SizedBox(height: 24),
-            // Modern options grid
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Flexible(
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: options.map((option) => SizedBox(
-                      width: (Get.width - 80) / columns,
-                      child: _buildModernOptionButton(option, onSelect),
-                    )).toList(),
-                  ),
+            const SizedBox(height: 20),
+            // Modern options grid with scrollable content
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: options.map((option) => SizedBox(
+                    width: (Get.width - 80) / columns,
+                    child: _buildModernOptionButton(option, onSelect),
+                  )).toList(),
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 24),
           ],
         ),
       ),
