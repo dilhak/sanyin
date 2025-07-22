@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import '../core/memory_manager.dart';
 
 class MemoryMonitor extends StatelessWidget {
-  const MemoryMonitor({Key? key}) : super(key: key);
+  const MemoryMonitor({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +36,11 @@ class MemoryMonitor extends StatelessWidget {
                     MemoryManager.clearReactiveVariables();
                     Get.snackbar('Memory', 'Reactive variables cleared');
                   },
-                  child: Text('Clear', style: TextStyle(fontSize: 10)),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     minimumSize: Size(0, 24),
                   ),
+                  child: Text('Clear', style: TextStyle(fontSize: 10)),
                 ),
                 const SizedBox(width: 4),
                 ElevatedButton(
@@ -48,11 +48,11 @@ class MemoryMonitor extends StatelessWidget {
                     MemoryManager.forceGarbageCollection();
                     Get.snackbar('Memory', 'Garbage collection triggered');
                   },
-                  child: Text('GC', style: TextStyle(fontSize: 10)),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     minimumSize: Size(0, 24),
                   ),
+                  child: Text('GC', style: TextStyle(fontSize: 10)),
                 ),
               ],
             ),

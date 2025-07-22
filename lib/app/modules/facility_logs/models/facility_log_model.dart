@@ -64,7 +64,7 @@ class FacilityLog {
       'priority': priority.name,
       'staffMember': staffMember,
       'location': location,
-      'additionalData': additionalData != null ? additionalData.toString() : null,
+      'additionalData': additionalData?.toString(),
       'photoPath': photoPath,
       'isResolved': isResolved ? 1 : 0,
       'resolvedAt': resolvedAt?.toIso8601String(),
