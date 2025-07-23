@@ -3,7 +3,6 @@ part of 'app_pages.dart';
 
 abstract class Routes {
   Routes._();
-  static const HOME = _Paths.HOME;
   static const TASKS = _Paths.TASKS;
   static const SPLASH = _Paths.SPLASH;
   static const CLIENT_DASHBOARD = _Paths.CLIENT_DASHBOARD;
@@ -13,13 +12,11 @@ abstract class Routes {
   static const QUICK_ACTIONS = _Paths.QUICK_ACTIONS;
   static const CARE_LOG_HISTORY = _Paths.CARE_LOG_HISTORY;
   static const PHOTO_CAPTURE = _Paths.PHOTO_CAPTURE;
-  static const FACILITY_HISTORY = _Paths.FACILITY_HISTORY;
   static const FACILITY_LOGS = _Paths.FACILITY_LOGS;
 }
 
 abstract class _Paths {
   _Paths._();
-  static const HOME = '/home';
   static const TASKS = '/tasks';
   static const SPLASH = '/splash';
   static const CLIENT_DASHBOARD = '/client/dashboard';
@@ -29,6 +26,5 @@ abstract class _Paths {
   static const QUICK_ACTIONS = '/care/log';
   static const CARE_LOG_HISTORY = '/care/history';
   static const PHOTO_CAPTURE = '/care/photo';
-  static const FACILITY_HISTORY = '/facility/history';
   static const FACILITY_LOGS = '/facility/logs';
 }

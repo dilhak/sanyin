@@ -4,8 +4,6 @@ import '../modules/tasks/bindings/tasks_binding.dart';
 import '../modules/tasks/views/tasks_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
 import '../modules/splash/views/splash_view.dart';
-import '../modules/home/bindings/home_binding.dart';
-import '../modules/home/views/home_view.dart';
 import '../modules/client/bindings/client_dashboard_binding.dart';
 import '../modules/client/views/client_dashboard_view.dart';
 import '../modules/client/bindings/add_client_binding.dart';
@@ -20,7 +18,6 @@ import '../modules/care_log/bindings/care_log_history_binding.dart';
 import '../modules/care_log/views/care_log_history_view.dart';
 import '../modules/care_log/bindings/photo_capture_binding.dart';
 import '../modules/care_log/views/photo_capture_view.dart';
-import '../modules/home/views/facility_history_view.dart';
 import '../modules/facility_logs/bindings/facility_logs_binding.dart';
 import '../modules/facility_logs/views/facility_logs_view.dart';
 
@@ -29,14 +26,10 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.HOME;
+  static const INITIAL = Routes.CLIENT_DASHBOARD;
 
   static final routes = [
-    GetPage(
-      name: _Paths.HOME,
-      page: () => const HomeView(),
-      binding: HomeBinding(),
-    ),
+
     GetPage(
       name: _Paths.TASKS,
       page: () => const TasksView(),
@@ -82,11 +75,7 @@ class AppPages {
       page: () => const PhotoCaptureView(),
       binding: PhotoCaptureBinding(),
     ),
-    GetPage(
-      name: _Paths.FACILITY_HISTORY,
-      page: () => const FacilityHistoryView(),
-      binding: TasksBinding(),
-    ),
+
     GetPage(
       name: _Paths.FACILITY_LOGS,
       page: () => const FacilityLogsView(),

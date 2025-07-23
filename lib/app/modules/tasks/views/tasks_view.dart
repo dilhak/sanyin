@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/tasks_controller.dart';
 import '../models/task_model.dart';
+import '../../../widgets/universal_bottom_navigation.dart';
 
 class TasksView extends GetView<TasksController> {
   const TasksView({super.key});
@@ -117,65 +118,7 @@ class TasksView extends GetView<TasksController> {
           child: const Icon(Icons.add, size: 28),
         ),
       ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              spreadRadius: 1,
-              blurRadius: 8,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: BottomNavigationBar(
-          currentIndex: 2,
-          onTap: (index) {
-            switch (index) {
-              case 0:
-                Get.toNamed('/home');
-                break;
-              case 1:
-                Get.toNamed('/client/dashboard');
-                break;
-              case 2:
-                break;
-              case 3:
-                Get.snackbar(
-                  'Info',
-                  'Settings coming soon',
-                  backgroundColor: Colors.blue[100],
-                  colorText: Colors.blue[800],
-                );
-                break;
-            }
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: Colors.white,
-          selectedItemColor: Colors.blue[600],
-          unselectedItemColor: Colors.grey[600],
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.people),
-              label: 'Clients',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.task),
-              label: 'Tasks',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: const UniversalBottomNavigation(currentIndex: 0),
     );
   }
 
