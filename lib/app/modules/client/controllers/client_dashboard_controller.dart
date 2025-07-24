@@ -51,7 +51,7 @@ class ClientDashboardController extends GetxController {
     try {
       final clientsList = await _databaseService.getClients();
       clients.value = clientsList;
-      _updateHomesList();
+      await _updateHomesList();
       _filterClients();
     } catch (e) {
       _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
@@ -60,13 +60,27 @@ class ClientDashboardController extends GetxController {
     }
   }
 
-  void _updateHomesList() {
+  Future<void> _updateHomesList() async {
     final homeSet = <String>{'All Homes'};
+    
+    // Add homes from existing clients
     for (final client in clients) {
       if (client.address != null && client.address!.isNotEmpty) {
         homeSet.add(client.address!);
       }
     }
+    
+    // Load homes from database
+    try {
+      final dbHomes = await _databaseService.getAllHomes();
+      for (final home in dbHomes) {
+        homeSet.add(home);
+      }
+    } catch (e) {
+      // If database fails, continue with client homes only
+      print('Failed to load homes from database: $e');
+    }
+    
     homes.value = homeSet.toList()..sort();
   }
 
@@ -86,7 +100,415 @@ class ClientDashboardController extends GetxController {
   }
 
   void addNewClient() {
-    Get.toNamed(Routes.ADD_CLIENT);
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController phoneController = TextEditingController();
+    final TextEditingController addressController = TextEditingController();
+    final TextEditingController emergencyController = TextEditingController();
+    final TextEditingController medicalNotesController = TextEditingController();
+    
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: Get.height * 0.8,
+          ),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Add client icon
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.person_add_rounded,
+                    color: Colors.blue,
+                    size: 30,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Title
+                const Text(
+                  'Add New Client',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Enter client information to create a new profile',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                // Name field
+                SizedBox(
+                  width: double.infinity,
+                  child: TextField(
+                    controller: nameController,
+                    enableInteractiveSelection: true,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      hintText: 'Client Name',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.blue, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.person,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Phone field
+                SizedBox(
+                  width: double.infinity,
+                  child: TextField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: InputDecoration(
+                      hintText: 'Phone Number (Optional)',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.blue, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.phone,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Home dropdown field
+                SizedBox(
+                  width: double.infinity,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.transparent),
+                    ),
+                    child: DropdownButtonFormField<String>(
+                      value: addressController.text.isNotEmpty ? addressController.text : null,
+                      decoration: InputDecoration(
+                        hintText: 'Select Home (Optional)',
+                        hintStyle: TextStyle(
+                          color: Colors.grey[400],
+                          fontSize: 16,
+                        ),
+                        filled: true,
+                        fillColor: Colors.transparent,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: const BorderSide(color: Colors.blue, width: 2),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        prefixIcon: Icon(
+                          Icons.home,
+                          color: Colors.grey[600],
+                          size: 20,
+                        ),
+                        suffixIcon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Colors.grey[600],
+                          size: 24,
+                        ),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                      items: [
+                        const DropdownMenuItem<String>(
+                          value: null,
+                          child: Text('Select a home...'),
+                        ),
+                        ...homes.map((home) => DropdownMenuItem<String>(
+                          value: home,
+                          child: Text(home),
+                        )),
+                      ],
+                      onChanged: (String? value) {
+                        addressController.text = value ?? '';
+                      },
+                      dropdownColor: Colors.white,
+                      icon: const SizedBox.shrink(),
+                      isExpanded: true,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Emergency contact field
+                SizedBox(
+                  width: double.infinity,
+                  child: TextField(
+                    controller: emergencyController,
+                    enableInteractiveSelection: true,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      hintText: 'Emergency Contact (Optional)',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.blue, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.emergency,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Medical notes field
+                SizedBox(
+                  width: double.infinity,
+                  child: TextField(
+                    controller: medicalNotesController,
+                    maxLines: 3,
+                    enableInteractiveSelection: true,
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      hintText: 'Medical Notes (Optional)',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.blue, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.medical_services,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.back(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.blue.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final name = nameController.text.trim();
+                            if (name.isNotEmpty) {
+                              Get.back();
+                              await _addNewClient(
+                                name: name,
+                                phoneNumber: phoneController.text.trim(),
+                                address: addressController.text.trim(),
+                                emergencyContact: emergencyController.text.trim(),
+                                medicalNotes: medicalNotesController.text.trim(),
+                              );
+                            } else {
+                              _errorHandler.showWarningSnackbar('Please enter a client name');
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Add Client',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addNewClient({
+    required String name,
+    String? phoneNumber,
+    String? address,
+    String? emergencyContact,
+    String? medicalNotes,
+  }) async {
+    try {
+      final client = Client(
+        name: name,
+        phoneNumber: phoneNumber?.isNotEmpty == true ? phoneNumber : null,
+        address: address?.isNotEmpty == true ? address : null,
+        emergencyContact: emergencyContact?.isNotEmpty == true ? emergencyContact : null,
+        medicalNotes: medicalNotes?.isNotEmpty == true ? medicalNotes : null,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+             final id = await _databaseService.insertClient(client);
+
+      // Reload clients to update the list
+      await loadClients();
+      
+      // Show success message
+      _errorHandler.showSuccessSnackbar('Client "$name" added successfully');
+      
+      // Log the action
+      addLog(
+        'Client Added',
+        'Added new client: $name',
+        'other',
+        additionalData: {'clientName': name},
+      );
+    } catch (e) {
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
+    }
   }
 
   void showAddOptionsDrawer() {
@@ -236,13 +658,211 @@ class ClientDashboardController extends GetxController {
   }
 
   void addNewHome() {
-    // TODO: Implement add home functionality
-    Get.snackbar(
-      'Coming Soon',
-      'Add home functionality will be implemented soon',
-      backgroundColor: Colors.green[100],
-      colorText: Colors.green[800],
+    final TextEditingController homeNameController = TextEditingController();
+    
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Container(
+          constraints: BoxConstraints(
+            maxHeight: Get.height * 0.7,
+          ),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Add home icon
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.home_rounded,
+                    color: Colors.green,
+                    size: 30,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Title
+                const Text(
+                  'Add New Home',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Enter the name of the new home location',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                    height: 1.4,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                // Home name input field
+                SizedBox(
+                  width: double.infinity,
+                  child: TextField(
+                    controller: homeNameController,
+                    enableInteractiveSelection: true,
+                    textCapitalization: TextCapitalization.words,
+                    decoration: InputDecoration(
+                      hintText: 'e.g., Maple Street Home, Oak Avenue Facility',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 16,
+                      ),
+                      filled: true,
+                      fillColor: Colors.grey[50],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(color: Colors.green, width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      prefixIcon: Icon(
+                        Icons.home,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.back(),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.green.withValues(alpha: 0.3),
+                              blurRadius: 8,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            final homeName = homeNameController.text.trim();
+                            if (homeName.isNotEmpty) {
+                              Get.back();
+                              await _addNewHome(homeName);
+                            } else {
+                              _errorHandler.showWarningSnackbar('Please enter a home name');
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Add Home',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
+  }
+
+  Future<void> _addNewHome(String homeName) async {
+    // Check if home already exists
+    if (homes.contains(homeName)) {
+      _errorHandler.showWarningSnackbar('Home "$homeName" already exists');
+      return;
+    }
+
+    try {
+      // Save home to database
+      await _databaseService.insertHome(homeName);
+      
+      // Add the new home to the list
+      homes.add(homeName);
+      homes.sort(); // Keep the list sorted
+      
+      // Show success message
+      _errorHandler.showSuccessSnackbar('Home "$homeName" added successfully');
+      
+      // Log the action
+      addLog(
+        'Home Added',
+        'Added new home: $homeName',
+        'other',
+        additionalData: {'homeName': homeName},
+      );
+    } catch (e) {
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
+    }
   }
 
   void viewClientDetails(Client client) {
@@ -271,7 +891,15 @@ class ClientDashboardController extends GetxController {
     try {
       await _databaseService.deleteClient(client.id!);
       await loadClients();
-      _errorHandler.showSuccessSnackbar('Client deleted successfully');
+      _errorHandler.showSuccessSnackbar('Client "${client.name}" deleted successfully');
+      
+      // Log the action
+      addLog(
+        'Client Deleted',
+        'Deleted client: ${client.name}',
+        'other',
+        additionalData: {'clientName': client.name},
+      );
     } catch (e) {
       _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
     }
@@ -457,5 +1085,9 @@ class ClientDashboardController extends GetxController {
     } else {
       return 'Not on break';
     }
+  }
+
+  void editClient(Client client) {
+    Get.toNamed(Routes.EDIT_CLIENT, arguments: client);
   }
 } 

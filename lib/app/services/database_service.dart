@@ -130,6 +130,16 @@ class DatabaseService {
         notes TEXT
       )
     ''');
+
+    // Create homes table
+    await db.execute('''
+      CREATE TABLE homes(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL UNIQUE,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -684,5 +694,59 @@ class DatabaseService {
     await close();
     String path = join(await getDatabasesPath(), 'sanyin.db');
     await databaseFactory.deleteDatabase(path);
+  }
+
+  // Homes management methods
+  Future<int> insertHome(String homeName) async {
+    try {
+      final db = await database;
+      final now = DateTime.now().toIso8601String();
+      final data = {
+        'name': homeName,
+        'createdAt': now,
+        'updatedAt': now,
+      };
+      return await db.insert('homes', data);
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to add home',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<List<String>> getAllHomes() async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'homes',
+        orderBy: 'name ASC',
+      );
+      return List.generate(maps.length, (i) => maps[i]['name'] as String);
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load homes',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<int> deleteHome(String homeName) async {
+    try {
+      final db = await database;
+      return await db.delete(
+        'homes',
+        where: 'name = ?',
+        whereArgs: [homeName],
+      );
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to delete home',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
   }
 } 
