@@ -5,6 +5,9 @@ import '../../../routes/app_pages.dart';
 import '../../../services/database_service.dart';
 import '../../../core/error_handler.dart';
 import '../../facility_logs/models/facility_log_model.dart';
+import '../../../widgets/enhanced_text_field.dart';
+import '../../../services/keyboard_service.dart';
+import '../../../utils/spacing_constants.dart';
 
 class ClientDashboardController extends GetxController {
   final RxList<Client> clients = <Client>[].obs;
@@ -106,6 +109,12 @@ class ClientDashboardController extends GetxController {
     final TextEditingController emergencyController = TextEditingController();
     final TextEditingController medicalNotesController = TextEditingController();
     
+    final FocusNode nameFocusNode = FocusNode();
+    final FocusNode phoneFocusNode = FocusNode();
+    final FocusNode addressFocusNode = FocusNode();
+    final FocusNode emergencyFocusNode = FocusNode();
+    final FocusNode medicalNotesFocusNode = FocusNode();
+    
     Get.dialog(
       Dialog(
         shape: RoundedRectangleBorder(
@@ -115,7 +124,7 @@ class ClientDashboardController extends GetxController {
           constraints: BoxConstraints(
             maxHeight: Get.height * 0.8,
           ),
-          padding: const EdgeInsets.all(24),
+          padding: SpacingConstants.dialogPadding,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
@@ -145,7 +154,7 @@ class ClientDashboardController extends GetxController {
                     size: 30,
                   ),
                 ),
-                const SizedBox(height: 20),
+                Spacing.lg,
                 // Title
                 const Text(
                   'Add New Client',
@@ -156,7 +165,7 @@ class ClientDashboardController extends GetxController {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 8),
+                Spacing.sm,
                 Text(
                   'Enter client information to create a new profile',
                   style: TextStyle(
@@ -166,84 +175,27 @@ class ClientDashboardController extends GetxController {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
+                Spacing.lg,
                 // Name field
-                SizedBox(
-                  width: double.infinity,
-                  child: TextField(
-                    controller: nameController,
-                    enableInteractiveSelection: true,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      hintText: 'Client Name',
-                      hintStyle: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 16,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.blue, width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.person,
-                        color: Colors.grey[600],
-                        size: 20,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                  ),
+                EnhancedTextField(
+                  controller: nameController,
+                  focusNode: nameFocusNode,
+                  hintText: 'Client Name',
+                  prefixIcon: Icons.person,
+                  textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) => phoneFocusNode.requestFocus(),
                 ),
-                const SizedBox(height: 16),
+                Spacing.md,
                 // Phone field
-                SizedBox(
-                  width: double.infinity,
-                  child: TextField(
-                    controller: phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      hintText: 'Phone Number (Optional)',
-                      hintStyle: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 16,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.blue, width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.phone,
-                        color: Colors.grey[600],
-                        size: 20,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                  ),
+                EnhancedTextField(
+                  controller: phoneController,
+                  focusNode: phoneFocusNode,
+                  hintText: 'Phone Number (Optional)',
+                  prefixIcon: Icons.phone,
+                  keyboardType: TextInputType.phone,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) => addressFocusNode.requestFocus(),
                 ),
                 const SizedBox(height: 16),
                 // Home dropdown field
@@ -311,88 +263,30 @@ class ClientDashboardController extends GetxController {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                Spacing.md,
                 // Emergency contact field
-                SizedBox(
-                  width: double.infinity,
-                  child: TextField(
-                    controller: emergencyController,
-                    enableInteractiveSelection: true,
-                    textCapitalization: TextCapitalization.words,
-                    decoration: InputDecoration(
-                      hintText: 'Emergency Contact (Optional)',
-                      hintStyle: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 16,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.blue, width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.emergency,
-                        color: Colors.grey[600],
-                        size: 20,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                  ),
+                EnhancedTextField(
+                  controller: emergencyController,
+                  focusNode: emergencyFocusNode,
+                  hintText: 'Emergency Contact (Optional)',
+                  prefixIcon: Icons.emergency,
+                  textCapitalization: TextCapitalization.words,
+                  textInputAction: TextInputAction.next,
+                  onSubmitted: (_) => medicalNotesFocusNode.requestFocus(),
                 ),
-                const SizedBox(height: 16),
+                Spacing.md,
                 // Medical notes field
-                SizedBox(
-                  width: double.infinity,
-                  child: TextField(
-                    controller: medicalNotesController,
-                    maxLines: 3,
-                    enableInteractiveSelection: true,
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: InputDecoration(
-                      hintText: 'Medical Notes (Optional)',
-                      hintStyle: TextStyle(
-                        color: Colors.grey[400],
-                        fontSize: 16,
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[50],
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: const BorderSide(color: Colors.blue, width: 2),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      prefixIcon: Icon(
-                        Icons.medical_services,
-                        color: Colors.grey[600],
-                        size: 20,
-                      ),
-                    ),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ),
-                  ),
+                EnhancedTextField(
+                  controller: medicalNotesController,
+                  focusNode: medicalNotesFocusNode,
+                  hintText: 'Medical Notes (Optional)',
+                  prefixIcon: Icons.medical_services,
+                  maxLines: 3,
+                  textCapitalization: TextCapitalization.sentences,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) => KeyboardService.to.dismissKeyboard(),
                 ),
-                const SizedBox(height: 24),
+                Spacing.lg,
                 // Action buttons
                 Row(
                   children: [

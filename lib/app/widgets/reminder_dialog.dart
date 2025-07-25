@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'responsive_bottom_drawer.dart';
+import 'enhanced_text_field.dart';
+import '../services/keyboard_service.dart';
 
 class ReminderDialog {
   static void show({
@@ -32,70 +34,26 @@ class ReminderDialog {
                     child: Column(
                       children: [
                         // Title field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey[200]!),
-                          ),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: TextField(
-                              controller: titleController,
-                              enableInteractiveSelection: true,
-                              textCapitalization: TextCapitalization.sentences,
-                              decoration: InputDecoration(
-                                labelText: 'Reminder Title',
-                                hintText: 'e.g., Medication reminder',
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.all(16),
-                                labelStyle: TextStyle(color: Colors.grey[600]),
-                                suffixIcon: titleController.text.isNotEmpty
-                                    ? IconButton(
-                                        icon: Icon(Icons.clear, color: Colors.grey[500]),
-                                        onPressed: () {
-                                          titleController.clear();
-                                          setState(() {});
-                                        },
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          ),
+                        EnhancedTextField(
+                          controller: titleController,
+                          labelText: 'Reminder Title',
+                          hintText: 'e.g., Medication reminder',
+                          textCapitalization: TextCapitalization.sentences,
+                          textInputAction: TextInputAction.next,
+                          onSubmitted: (_) => KeyboardService.to.focusNextField(context),
+                          onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 16),
                         // Description field
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.grey[200]!),
-                          ),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: TextField(
-                              controller: descriptionController,
-                              maxLines: 3,
-                              enableInteractiveSelection: true,
-                              textCapitalization: TextCapitalization.sentences,
-                              decoration: InputDecoration(
-                                labelText: 'Description',
-                                hintText: 'e.g., Give medication to $clientName',
-                                border: InputBorder.none,
-                                contentPadding: const EdgeInsets.all(16),
-                                labelStyle: TextStyle(color: Colors.grey[600]),
-                                suffixIcon: descriptionController.text.isNotEmpty
-                                    ? IconButton(
-                                        icon: Icon(Icons.clear, color: Colors.grey[500]),
-                                        onPressed: () {
-                                          descriptionController.clear();
-                                          setState(() {});
-                                        },
-                                      )
-                                    : null,
-                              ),
-                            ),
-                          ),
+                        EnhancedTextField(
+                          controller: descriptionController,
+                          labelText: 'Description',
+                          hintText: 'e.g., Give medication to $clientName',
+                          maxLines: 3,
+                          textCapitalization: TextCapitalization.sentences,
+                          textInputAction: TextInputAction.done,
+                          onSubmitted: (_) => KeyboardService.to.dismissKeyboard(),
+                          onChanged: (_) => setState(() {}),
                         ),
                         const SizedBox(height: 24),
                         // Date and Time selection

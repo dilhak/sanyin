@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'enhanced_text_field.dart';
+import '../services/keyboard_service.dart';
 
 class UniversalPopup {
   static void show({
@@ -389,38 +391,13 @@ class UniversalPopup {
               ),
               const SizedBox(height: 24),
               // Input field
-              SizedBox(
-                width: double.infinity,
-                child: TextField(
-                  controller: controller,
-                  maxLines: maxLines,
-                  keyboardType: keyboardType,
-                  decoration: InputDecoration(
-                    hintText: hintText,
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 16,
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[50],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Colors.blue, width: 2),
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                  ),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
+              EnhancedTextField(
+                controller: controller,
+                hintText: hintText,
+                maxLines: maxLines,
+                keyboardType: keyboardType,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => KeyboardService.to.dismissKeyboard(),
               ),
               const SizedBox(height: 24),
               // Action buttons

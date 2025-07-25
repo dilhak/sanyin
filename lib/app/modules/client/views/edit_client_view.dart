@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../controllers/edit_client_controller.dart';
+import '../../../widgets/enhanced_text_field.dart';
+import '../../../widgets/keyboard_aware_wrapper.dart';
+import '../../../services/keyboard_service.dart';
+import '../../../utils/spacing_constants.dart';
 
 class EditClientView extends GetView<EditClientController> {
   const EditClientView({super.key});
@@ -81,15 +85,13 @@ class EditClientView extends GetView<EditClientController> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      body: KeyboardAwareWrapper(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile section
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: SpacingConstants.cardPadding,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -118,7 +120,7 @@ class EditClientView extends GetView<EditClientController> {
                       color: Colors.blue[600],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  Spacing.md,
                   const Text(
                     'Edit Client Information',
                     style: TextStyle(
@@ -129,11 +131,11 @@ class EditClientView extends GetView<EditClientController> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            Spacing.lg,
             
             // Form fields
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: SpacingConstants.cardPadding,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -148,15 +150,16 @@ class EditClientView extends GetView<EditClientController> {
               ),
               child: Column(
                 children: [
-                  _buildTextField(
-                    context: context,
+                  EnhancedTextField(
                     controller: controller.nameController,
                     focusNode: controller.nameFocusNode,
-                    label: 'Full Name',
-                    icon: Icons.person,
+                    labelText: 'Full Name',
+                    prefixIcon: Icons.person,
                     isRequired: true,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => KeyboardService.to.dismissKeyboard(),
                   ),
-                  const SizedBox(height: 16),
+                  Spacing.md,
                   _buildHomeDropdown(),
                 ],
               ),
@@ -167,93 +170,7 @@ class EditClientView extends GetView<EditClientController> {
     );
   }
 
-  Widget _buildTextField({
-    required BuildContext context,
-    required TextEditingController controller,
-    FocusNode? focusNode,
-    required String label,
-    required IconData icon,
-    bool isRequired = false,
-    TextInputType? keyboardType,
-    int maxLines = 1,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Icon(icon, size: 16, color: Colors.grey[600]),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[700],
-              ),
-            ),
-            if (isRequired)
-              Text(
-                ' *',
-                style: TextStyle(
-                  color: Colors.red[600],
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: TextField(
-            controller: controller,
-            focusNode: focusNode,
-            keyboardType: keyboardType,
-            maxLines: maxLines,
-            enableInteractiveSelection: true,
-            textCapitalization: maxLines > 1 ? TextCapitalization.sentences : TextCapitalization.words,
-            textInputAction: maxLines == 1 ? TextInputAction.next : TextInputAction.done,
 
-            onSubmitted: (_) {
-              // Auto-focus next field or dismiss keyboard
-              if (context.mounted) {
-                FocusScope.of(context).nextFocus();
-              }
-            },
-            decoration: InputDecoration(
-              hintText: 'Enter ${label.toLowerCase()}',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.grey[300]!),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.blue[600]!),
-              ),
-              filled: true,
-              fillColor: Colors.grey[50],
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              suffixIcon: maxLines > 1 ? IconButton(
-                icon: Icon(Icons.keyboard_hide, color: Colors.grey[600]),
-                onPressed: () {
-                  if (context.mounted) {
-                    FocusScope.of(context).unfocus();
-                  }
-                },
-              ) : null,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildHomeDropdown() {
     return Column(
