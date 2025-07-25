@@ -4,7 +4,6 @@ import '../controllers/add_client_controller.dart';
 import '../../../widgets/enhanced_text_field.dart';
 import '../../../widgets/keyboard_aware_wrapper.dart';
 import '../../../services/keyboard_service.dart';
-import '../../../utils/spacing_constants.dart';
 
 class AddClientView extends GetView<AddClientController> {
   const AddClientView({super.key});
@@ -91,7 +90,7 @@ class AddClientView extends GetView<AddClientController> {
           children: [
             // Profile section
             Container(
-              padding: SpacingConstants.cardPadding,
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -120,7 +119,7 @@ class AddClientView extends GetView<AddClientController> {
                       color: Colors.blue[600],
                     ),
                   ),
-                  Spacing.md,
+                  const SizedBox(height: 16),
                   const Text(
                     'Client Information',
                     style: TextStyle(
@@ -131,11 +130,11 @@ class AddClientView extends GetView<AddClientController> {
                 ],
               ),
             ),
-            Spacing.lg,
+            const SizedBox(height: 20),
             
             // Form fields
             Container(
-              padding: SpacingConstants.cardPadding,
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -159,7 +158,7 @@ class AddClientView extends GetView<AddClientController> {
                     textInputAction: TextInputAction.next,
                     onSubmitted: (_) => controller.addressFocusNode.requestFocus(),
                   ),
-                  Spacing.md,
+                  const SizedBox(height: 16),
                   EnhancedTextField(
                     controller: controller.addressController,
                     focusNode: controller.addressFocusNode,

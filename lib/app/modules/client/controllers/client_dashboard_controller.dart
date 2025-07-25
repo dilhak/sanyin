@@ -7,7 +7,6 @@ import '../../../core/error_handler.dart';
 import '../../facility_logs/models/facility_log_model.dart';
 import '../../../widgets/enhanced_text_field.dart';
 import '../../../services/keyboard_service.dart';
-import '../../../utils/spacing_constants.dart';
 
 class ClientDashboardController extends GetxController {
   final RxList<Client> clients = <Client>[].obs;
@@ -124,7 +123,7 @@ class ClientDashboardController extends GetxController {
           constraints: BoxConstraints(
             maxHeight: Get.height * 0.8,
           ),
-          padding: SpacingConstants.dialogPadding,
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
@@ -154,7 +153,7 @@ class ClientDashboardController extends GetxController {
                     size: 30,
                   ),
                 ),
-                Spacing.lg,
+                const SizedBox(height: 20),
                 // Title
                 const Text(
                   'Add New Client',
@@ -165,7 +164,7 @@ class ClientDashboardController extends GetxController {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                Spacing.sm,
+                const SizedBox(height: 8),
                 Text(
                   'Enter client information to create a new profile',
                   style: TextStyle(
@@ -175,7 +174,7 @@ class ClientDashboardController extends GetxController {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                Spacing.lg,
+                const SizedBox(height: 24),
                 // Name field
                 EnhancedTextField(
                   controller: nameController,
@@ -186,7 +185,7 @@ class ClientDashboardController extends GetxController {
                   textInputAction: TextInputAction.next,
                   onSubmitted: (_) => phoneFocusNode.requestFocus(),
                 ),
-                Spacing.md,
+                const SizedBox(height: 16),
                 // Phone field
                 EnhancedTextField(
                   controller: phoneController,
@@ -263,7 +262,7 @@ class ClientDashboardController extends GetxController {
                     ),
                   ),
                 ),
-                Spacing.md,
+                const SizedBox(height: 16),
                 // Emergency contact field
                 EnhancedTextField(
                   controller: emergencyController,
@@ -274,7 +273,7 @@ class ClientDashboardController extends GetxController {
                   textInputAction: TextInputAction.next,
                   onSubmitted: (_) => medicalNotesFocusNode.requestFocus(),
                 ),
-                Spacing.md,
+                const SizedBox(height: 16),
                 // Medical notes field
                 EnhancedTextField(
                   controller: medicalNotesController,
@@ -286,7 +285,7 @@ class ClientDashboardController extends GetxController {
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => KeyboardService.to.dismissKeyboard(),
                 ),
-                Spacing.lg,
+                const SizedBox(height: 24),
                 // Action buttons
                 Row(
                   children: [

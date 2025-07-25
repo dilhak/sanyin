@@ -4,7 +4,6 @@ import '../controllers/edit_client_controller.dart';
 import '../../../widgets/enhanced_text_field.dart';
 import '../../../widgets/keyboard_aware_wrapper.dart';
 import '../../../services/keyboard_service.dart';
-import '../../../utils/spacing_constants.dart';
 
 class EditClientView extends GetView<EditClientController> {
   const EditClientView({super.key});
@@ -91,7 +90,7 @@ class EditClientView extends GetView<EditClientController> {
           children: [
             // Profile section
             Container(
-              padding: SpacingConstants.cardPadding,
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -120,7 +119,7 @@ class EditClientView extends GetView<EditClientController> {
                       color: Colors.blue[600],
                     ),
                   ),
-                  Spacing.md,
+                  const SizedBox(height: 16),
                   const Text(
                     'Edit Client Information',
                     style: TextStyle(
@@ -131,11 +130,11 @@ class EditClientView extends GetView<EditClientController> {
                 ],
               ),
             ),
-            Spacing.lg,
+            const SizedBox(height: 20),
             
             // Form fields
             Container(
-              padding: SpacingConstants.cardPadding,
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
@@ -159,7 +158,7 @@ class EditClientView extends GetView<EditClientController> {
                     textInputAction: TextInputAction.done,
                     onSubmitted: (_) => KeyboardService.to.dismissKeyboard(),
                   ),
-                  Spacing.md,
+                  const SizedBox(height: 16),
                   _buildHomeDropdown(),
                 ],
               ),
