@@ -237,7 +237,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void showVitalsForm() {
-    Get.back();
     _showVitalsInputDialog();
   }
 
@@ -295,7 +294,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showBowelMovementOptions() {
-    Get.back();
     UniversalPopup.showSubOptions(
       title: 'Defecation',
       options: [
@@ -309,7 +307,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showUrinationOptions() {
-    Get.back();
     UniversalPopup.showSubOptions(
       title: 'Urination',
       options: [
@@ -326,7 +323,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showMealOptions(MealType mealType) {
-    Get.back();
     UniversalPopup.showSubOptions(
       title: '${mealType.name.toUpperCase()} Intake',
       options: [
@@ -339,7 +335,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showMoodOptions() {
-    Get.back();
     UniversalPopup.showSubOptions(
       title: 'Mood',
       options: [
@@ -354,7 +349,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showActivityLevelOptions() {
-    Get.back();
     UniversalPopup.showSubOptions(
       title: 'Activity Level',
       options: [
@@ -368,7 +362,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showSocialInteractionOptions() {
-    Get.back();
     UniversalPopup.showSubOptions(
       title: 'Social Interaction',
       options: [
@@ -382,7 +375,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _logPain(String action, String details) {
-    Get.back();
     _saveCareLog(
       CareActivityType.pain,
       action,
@@ -866,7 +858,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _logLocation(String action, String details) {
-    Get.back();
     _saveCareLog(
       CareActivityType.location,
       action,
@@ -876,7 +867,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _logMedication(MedicationAction action, String medicineName) {
-    Get.back();
     _saveCareLog(
       CareActivityType.medication,
       action.name,
@@ -886,7 +876,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showMedicationInput(MedicationAction action) {
-    Get.back();
     UniversalPopup.showInputDialog(
       title: 'Medication ${action.name}',
       hintText: 'Enter medicine name...',
@@ -897,7 +886,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _showMultipleMedicationInput() {
-    Get.back();
     final List<String> medications = [];
     
     UniversalPopup.showInputDialog(
@@ -942,7 +930,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _logMultipleMedications(List<String> medications, MedicationAction action) {
-    Get.back();
     for (String medicine in medications) {
       _logMedication(action, medicine);
     }
@@ -958,7 +945,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _logToileting(String type, String option) {
-    Get.back();
     _saveCareLog(
       CareActivityType.toileting,
       type,
@@ -968,7 +954,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _logHydration(HydrationType type) {
-    Get.back();
     _saveCareLog(
       CareActivityType.hydration,
       type.name,
@@ -978,7 +963,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _logMeal(MealType mealType, String intake) {
-    Get.back();
     _saveCareLog(
       CareActivityType.meal,
       mealType.name,
@@ -988,7 +972,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void _logBehavior(String type, String option) {
-    Get.back();
     _saveCareLog(
       CareActivityType.behavior,
       type,

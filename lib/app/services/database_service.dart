@@ -34,7 +34,7 @@ class DatabaseService {
       
       return await openDatabase(
         path,
-        version: 5, // Increment version to trigger migration
+        version: 6, // Increment version to trigger migration
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
         singleInstance: true, // Ensure single database instance
@@ -66,7 +66,7 @@ class DatabaseService {
             // Retry database creation
             return await openDatabase(
               path,
-              version: 5,
+              version: 6,
               onCreate: _onCreate,
               onUpgrade: _onUpgrade,
               singleInstance: true,
@@ -208,6 +208,7 @@ class DatabaseService {
       await db.execute('''
         CREATE TABLE facility_logs(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
+          homeId INTEGER NOT NULL DEFAULT 0,
           action TEXT NOT NULL,
           description TEXT NOT NULL,
           timestamp TEXT NOT NULL,
@@ -225,12 +226,18 @@ class DatabaseService {
     }
     
     if (oldVersion < 4) {
-      // Add homeId column to existing facility_logs table
+      // Add homeId column to existing facility_logs table (if upgrading from version 3)
       try {
-        await db.execute('ALTER TABLE facility_logs ADD COLUMN homeId INTEGER NOT NULL DEFAULT 0');
+        // Check if homeId column already exists
+        final result = await db.rawQuery("PRAGMA table_info(facility_logs)");
+        final hasHomeId = result.any((column) => column['name'] == 'homeId');
+        
+        if (!hasHomeId) {
+          await db.execute('ALTER TABLE facility_logs ADD COLUMN homeId INTEGER NOT NULL DEFAULT 0');
+        }
       } catch (e) {
-        // Column might already exist, ignore error
-        print('homeId column might already exist: $e');
+        // Column might already exist or other error, log it
+        print('Error adding homeId column: $e');
       }
     }
     
@@ -254,6 +261,48 @@ class DatabaseService {
           notes TEXT
         )
       ''');
+    }
+    
+    if (oldVersion < 6) {
+      // Version 6: Ensure all tables have proper schema and fix any issues
+      try {
+        // Check facility_logs table structure and fix if needed
+        final facilityLogsInfo = await db.rawQuery("PRAGMA table_info(facility_logs)");
+        final hasHomeId = facilityLogsInfo.any((column) => column['name'] == 'homeId');
+        
+        if (!hasHomeId) {
+          print('Adding missing homeId column to facility_logs table');
+          await db.execute('ALTER TABLE facility_logs ADD COLUMN homeId INTEGER NOT NULL DEFAULT 0');
+        }
+        
+        // Check tasks table structure
+        final tasksInfo = await db.rawQuery("PRAGMA table_info(tasks)");
+        if (tasksInfo.isEmpty) {
+          print('Recreating missing tasks table');
+          await db.execute('''
+            CREATE TABLE tasks(
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              title TEXT NOT NULL,
+              description TEXT,
+              createdAt TEXT NOT NULL,
+              dueDate TEXT,
+              priority TEXT NOT NULL,
+              status TEXT NOT NULL,
+              assignedTo TEXT,
+              category TEXT,
+              isRecurring INTEGER NOT NULL DEFAULT 0,
+              recurrencePattern TEXT,
+              completedAt TEXT,
+              completedBy TEXT,
+              notes TEXT
+            )
+          ''');
+        }
+        
+        print('Database schema verification completed for version 6');
+      } catch (e) {
+        print('Error during version 6 upgrade: $e');
+      }
     }
   }
 
@@ -521,10 +570,23 @@ class DatabaseService {
       () async {
         try {
           final db = await database;
-          return await db.insert('facility_logs', facilityLog.toMap());
+          
+          // Debug: Log the data being inserted
+          final logData = facilityLog.toMap();
+          print('Inserting facility log: $logData');
+          
+          // Verify table exists and has correct structure
+          final tableInfo = await db.rawQuery("PRAGMA table_info(facility_logs)");
+          print('Facility logs table structure: $tableInfo');
+          
+          final result = await db.insert('facility_logs', logData);
+          print('Facility log inserted successfully with ID: $result');
+          return result;
         } catch (e) {
+          print('Error inserting facility log: $e');
+          print('Log data was: ${facilityLog.toMap()}');
           throw AppError(
-            message: 'Failed to save facility log',
+            message: 'Failed to save facility log: ${e.toString()}',
             type: ErrorType.database,
             originalError: e,
           );
@@ -784,29 +846,40 @@ class DatabaseService {
   Future<List<Home>> getHomesWithClientCount() async {
     try {
       final db = await database;
-      final List<Map<String, dynamic>> homeMaps = await db.rawQuery('''
-        SELECT 
-          h.id,
-          h.name,
-          h.createdAt,
-          h.updatedAt,
-          COUNT(c.id) as clientCount
-        FROM homes h
-        LEFT JOIN clients c ON h.name = c.address
-        GROUP BY h.id, h.name, h.createdAt, h.updatedAt
-        ORDER BY h.name ASC
-      ''');
       
-      return List.generate(homeMaps.length, (i) {
-        final map = homeMaps[i];
-        return Home.fromMap({
-          'id': map['id'],
-          'name': map['name'],
-          'createdAt': map['createdAt'],
-          'updatedAt': map['updatedAt'],
-          'clientCount': map['clientCount'],
-        });
-      });
+      // Get all homes first
+      final List<Map<String, dynamic>> homeMaps = await db.query(
+        'homes',
+        orderBy: 'name ASC',
+      );
+      
+      final List<Home> homes = [];
+      
+      // For each home, count clients manually to avoid SQL join issues
+      for (final homeMap in homeMaps) {
+        final homeName = homeMap['name'] as String;
+        
+        // Count clients for this home using exact and case-insensitive matching
+        final clientCount = await db.rawQuery('''
+          SELECT COUNT(*) as count 
+          FROM clients 
+          WHERE TRIM(LOWER(address)) = TRIM(LOWER(?)) 
+          AND address IS NOT NULL 
+          AND address != ''
+        ''', [homeName]);
+        
+        final count = clientCount.first['count'] as int;
+        
+        homes.add(Home.fromMap({
+          'id': homeMap['id'],
+          'name': homeMap['name'],
+          'createdAt': homeMap['createdAt'],
+          'updatedAt': homeMap['updatedAt'],
+          'clientCount': count,
+        }));
+      }
+      
+      return homes;
     } catch (e) {
       throw AppError(
         message: 'Failed to load homes with client counts',

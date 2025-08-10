@@ -420,7 +420,7 @@ class ClientDashboardController extends GetxController {
         updatedAt: DateTime.now(),
       );
 
-             final id = await _databaseService.insertClient(client);
+      await _databaseService.insertClient(client);
 
       // Reload clients to update the list
       await loadClients();
@@ -835,48 +835,60 @@ class ClientDashboardController extends GetxController {
   }
 
   // Logging Methods
-  void _addLog(String action, String description, String type, {Map<String, dynamic>? additionalData}) {
-    // Convert string type to FacilityLogType
-    FacilityLogType logType;
-    switch (type) {
-      case 'clock_in_out':
-        logType = FacilityLogType.clockInOut;
-        break;
-      case 'break':
-        logType = FacilityLogType.breakTime;
-        break;
-      case 'house_note':
-        logType = FacilityLogType.houseNote;
-        break;
-      case 'complaint':
-        logType = FacilityLogType.complaint;
-        break;
-      default:
-        logType = FacilityLogType.other;
-    }
-
-    // Get homeId from selected home
-    int homeId = 0;
-    if (selectedHome.value != 'All Homes') {
-      final clientWithAddress = clients.firstWhereOrNull(
-        (client) => client.address == selectedHome.value
-      );
-      if (clientWithAddress != null) {
-        homeId = clientWithAddress.id!;
+  Future<void> _addLog(String action, String description, String type, {Map<String, dynamic>? additionalData}) async {
+    try {
+      // Convert string type to FacilityLogType
+      FacilityLogType logType;
+      switch (type) {
+        case 'clock_in_out':
+          logType = FacilityLogType.clockInOut;
+          break;
+        case 'break':
+          logType = FacilityLogType.breakTime;
+          break;
+        case 'house_note':
+          logType = FacilityLogType.houseNote;
+          break;
+        case 'complaint':
+          logType = FacilityLogType.complaint;
+          break;
+        default:
+          logType = FacilityLogType.other;
       }
-    }
 
-    final log = FacilityLog(
-      homeId: homeId,
-      action: action,
-      description: description,
-      timestamp: DateTime.now(),
-      type: logType,
-      additionalData: additionalData,
-    );
-    
-    // In a real app, you would save this to a database
-    print('Facility Log: $action - $description at ${_formatDateTime(DateTime.now())}');
+      // Get homeId from selected home - use the actual home ID if available
+      int homeId = selectedHomeId.value ?? 0;
+      
+      // If we don't have a homeId but have a home name, try to get the ID
+      if (homeId == 0 && selectedHome.value != 'All Homes') {
+        try {
+          final home = await _databaseService.getHomeByName(selectedHome.value);
+          if (home != null) {
+            homeId = home.id ?? 0;
+          }
+        } catch (e) {
+          print('Failed to get home ID for logging: $e');
+        }
+      }
+
+      final log = FacilityLog(
+        homeId: homeId,
+        action: action,
+        description: description,
+        timestamp: DateTime.now(),
+        type: logType,
+        priority: FacilityLogPriority.low, // Default to low priority
+        additionalData: additionalData,
+      );
+      
+      // Save to database
+      await _databaseService.insertFacilityLog(log);
+      
+      print('Facility Log saved: $action - $description at ${_formatDateTime(DateTime.now())}');
+    } catch (e) {
+      print('Failed to save facility log: $e');
+      _errorHandler.logError(_errorHandler.categorizeError(e));
+    }
   }
 
   void addLog(String action, String description, String type, {Map<String, dynamic>? additionalData}) {
@@ -985,10 +997,11 @@ class ClientDashboardController extends GetxController {
   }
 
   void viewFacilityHistory() {
-    // Get homeId based on selected home
-    int homeId = 0;
-    if (selectedHome.value != 'All Homes') {
-      // Find a client with this address to get the homeId
+    // Use the actual home ID if available, otherwise fall back to old logic
+    int homeId = selectedHomeId.value ?? 0;
+    
+    if (homeId == 0 && selectedHome.value != 'All Homes') {
+      // Find a client with this address to get the homeId (fallback)
       final clientWithAddress = clients.firstWhereOrNull(
         (client) => client.address == selectedHome.value
       );
@@ -997,7 +1010,10 @@ class ClientDashboardController extends GetxController {
       }
     }
     
-    Get.toNamed(Routes.FACILITY_LOGS, arguments: {'homeId': homeId});
+    Get.toNamed(Routes.FACILITY_LOGS, arguments: {
+      'homeId': homeId,
+      'homeName': selectedHome.value != 'All Homes' ? selectedHome.value : null,
+    });
   }
 
   String getCurrentStatus() {

@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../modules/homes/bindings/home_binding.dart';
 import '../modules/homes/views/home_view.dart';
+import '../modules/homes/bindings/home_details_binding.dart';
+import '../modules/homes/views/home_details_view.dart';
 import '../modules/tasks/bindings/tasks_binding.dart';
 import '../modules/tasks/views/tasks_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
@@ -36,6 +38,11 @@ class AppPages {
       name: _Paths.HOME,
       page: () => const HomeView(),
       binding: HomeBinding(),
+    ),
+    GetPage(
+      name: _Paths.HOME_DETAILS,
+      page: () => const HomeDetailsView(),
+      binding: HomeDetailsBinding(),
     ),
     GetPage(
       name: _Paths.TASKS,

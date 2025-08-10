@@ -6,6 +6,7 @@ import '../../../core/error_handler.dart';
 import '../../../routes/app_pages.dart';
 import '../../../widgets/enhanced_text_field.dart';
 import '../../../services/keyboard_service.dart';
+import '../../facility_logs/models/facility_log_model.dart';
 
 class HomeController extends GetxController {
   final RxList<Home> homes = <Home>[].obs;
@@ -244,6 +245,19 @@ class HomeController extends GetxController {
       
       // Reload homes to get updated list with client counts
       await loadHomes();
+      
+      // Log the home creation action
+      await _logSystemAction(
+        'Home Created',
+        'New home "$homeName" was created',
+        FacilityLogType.other,
+        FacilityLogPriority.medium,
+        additionalData: {
+          'homeName': homeName,
+          'action': 'create',
+          'timestamp': DateTime.now().toIso8601String(),
+        },
+      );
       
       // Show success message
       _errorHandler.showSuccessSnackbar('Home "$homeName" created successfully');
@@ -557,6 +571,12 @@ class HomeController extends GetxController {
     }
   }
 
+  void viewHomeDetails(Home home) {
+    Get.toNamed(Routes.HOME_DETAILS, arguments: {
+      'home': home,
+    });
+  }
+
   void viewHomeClients(Home home) {
     Get.toNamed(Routes.CLIENT_DASHBOARD, arguments: {
       'selectedHome': home.name,
@@ -564,7 +584,44 @@ class HomeController extends GetxController {
     });
   }
 
+  void viewHomeFacilityLogs(Home home) {
+    Get.toNamed(Routes.FACILITY_LOGS, arguments: {
+      'homeId': home.id,
+      'homeName': home.name,
+    });
+  }
+
   void refreshHomes() {
     loadHomes();
+  }
+
+  // System-level logging for home management actions
+  Future<void> _logSystemAction(
+    String action,
+    String description,
+    FacilityLogType type,
+    FacilityLogPriority priority, {
+    Map<String, dynamic>? additionalData,
+  }) async {
+    try {
+      final log = FacilityLog(
+        homeId: 0, // System-level actions use homeId = 0
+        action: action,
+        description: description,
+        timestamp: DateTime.now(),
+        type: type,
+        priority: priority,
+        staffMember: 'Current User', // TODO: Get actual user from auth service
+        location: 'System',
+        additionalData: additionalData,
+      );
+
+      await _databaseService.insertFacilityLog(log);
+      print('System Action Logged: $action - $description');
+    } catch (e) {
+      print('Failed to log system action: $e');
+      // Don't show error to user for logging failures, just log it
+      _errorHandler.logError(_errorHandler.categorizeError(e));
+    }
   }
 }

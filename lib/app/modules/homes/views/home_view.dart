@@ -406,7 +406,7 @@ class HomeView extends GetView<HomeController> {
                           child: Material(
                             color: Colors.transparent,
                             child: InkWell(
-                              onTap: () => controller.viewHomeClients(home),
+                              onTap: () => controller.viewHomeDetails(home),
                               borderRadius: BorderRadius.circular(10),
                               child: const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 10),

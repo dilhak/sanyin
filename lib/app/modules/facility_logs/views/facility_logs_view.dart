@@ -11,17 +11,25 @@ class FacilityLogsView extends GetView<FacilityLogsController> {
   @override
   Widget build(BuildContext context) {
     // Get home name from arguments
-    final args = Get.arguments;
+    final args = Get.arguments as Map<String, dynamic>?;
     String homeName = 'Facility Logs';
-    if (args != null && args['homeId'] != null && args['homeId'] > 0) {
-      // Get home name from client dashboard controller
-      final clientController = Get.find<ClientDashboardController>();
-      final homeId = args['homeId'];
-      final clientWithAddress = clientController.clients.firstWhereOrNull(
-        (client) => client.id == homeId
-      );
-      if (clientWithAddress != null && clientWithAddress.address != null) {
-        homeName = '${clientWithAddress.address} - Facility Logs';
+    if (args != null) {
+      if (args['homeName'] != null) {
+        homeName = '${args['homeName']} - Facility Logs';
+      } else if (args['homeId'] != null && args['homeId'] > 0) {
+        // Fallback: try to get home name from client dashboard controller
+        try {
+          final clientController = Get.find<ClientDashboardController>();
+          final homeId = args['homeId'];
+          final clientWithAddress = clientController.clients.firstWhereOrNull(
+            (client) => client.id == homeId
+          );
+          if (clientWithAddress != null && clientWithAddress.address != null) {
+            homeName = '${clientWithAddress.address} - Facility Logs';
+          }
+        } catch (e) {
+          // Controller might not be available, use default name
+        }
       }
     }
 

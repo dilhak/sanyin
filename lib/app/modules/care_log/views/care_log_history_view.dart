@@ -160,11 +160,6 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
     }
   }
 
-  String _getDayOfWeek(DateTime date) {
-    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    return days[date.weekday - 1];
-  }
-
   Widget _buildEmptyState() {
     return Center(
       child: Column(
