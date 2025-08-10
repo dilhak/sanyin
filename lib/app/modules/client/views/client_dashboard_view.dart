@@ -13,18 +13,31 @@ class ClientDashboardView extends GetView<ClientDashboardController> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text(
-          'Clients',
-          style: TextStyle(
+        title: Obx(() => Text(
+          controller.selectedHome.value == 'All Homes' 
+              ? 'Clients'
+              : '${controller.selectedHome.value} - Clients',
+          style: const TextStyle(
             fontWeight: FontWeight.w600,
-            fontSize: 20,
+            fontSize: 18,
           ),
-        ),
+        )),
         centerTitle: true,
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
         shadowColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        leading: Obx(() {
+          if (controller.selectedHome.value != 'All Homes') {
+            return IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () => Get.back(),
+              tooltip: 'Back to Homes',
+            );
+          }
+          return const SizedBox.shrink();
+        }),
         actions: [
           Container(
             margin: const EdgeInsets.only(right: 8),

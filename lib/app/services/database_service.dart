@@ -1,9 +1,11 @@
+import 'dart:io';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../modules/client/models/client_model.dart';
 import '../modules/care_log/models/care_log_model.dart';
 import '../modules/facility_logs/models/facility_log_model.dart';
 import '../modules/tasks/models/task_model.dart';
+import '../modules/homes/models/home_model.dart';
 import '../models/reminder_model.dart';
 import '../core/error_handler.dart';
 import '../core/retry_mechanism.dart';
@@ -29,14 +31,55 @@ class DatabaseService {
   Future<Database> _initDatabase() async {
     try {
       String path = join(await getDatabasesPath(), 'sanyin.db');
+      
       return await openDatabase(
         path,
         version: 5, // Increment version to trigger migration
         onCreate: _onCreate,
         onUpgrade: _onUpgrade,
         singleInstance: true, // Ensure single database instance
+        onOpen: (db) async {
+          // Enable foreign key constraints
+          await db.execute('PRAGMA foreign_keys = ON');
+          // Verify database integrity on open
+          final result = await db.rawQuery('PRAGMA integrity_check');
+          if (result.isNotEmpty && result.first.values.first != 'ok') {
+            throw Exception('Database integrity check failed');
+          }
+        },
       );
     } catch (e) {
+      // Log the specific error for debugging
+      print('Database initialization error: $e');
+      
+      // If database is corrupted, try to recover by deleting and recreating
+      if (e.toString().contains('corrupt') || 
+          e.toString().contains('integrity') ||
+          e.toString().contains('malformed')) {
+        try {
+          String path = join(await getDatabasesPath(), 'sanyin.db');
+          final file = File(path);
+          if (await file.exists()) {
+            await file.delete();
+            print('Corrupted database deleted, attempting recreation...');
+            
+            // Retry database creation
+            return await openDatabase(
+              path,
+              version: 5,
+              onCreate: _onCreate,
+              onUpgrade: _onUpgrade,
+              singleInstance: true,
+              onOpen: (db) async {
+                await db.execute('PRAGMA foreign_keys = ON');
+              },
+            );
+          }
+        } catch (recoveryError) {
+          print('Database recovery failed: $recoveryError');
+        }
+      }
+      
       throw AppError(
         message: 'Failed to initialize database',
         type: ErrorType.database,
@@ -698,22 +741,27 @@ class DatabaseService {
 
   // Homes management methods
   Future<int> insertHome(String homeName) async {
-    try {
-      final db = await database;
-      final now = DateTime.now().toIso8601String();
-      final data = {
-        'name': homeName,
-        'createdAt': now,
-        'updatedAt': now,
-      };
-      return await db.insert('homes', data);
-    } catch (e) {
-      throw AppError(
-        message: 'Failed to add home',
-        type: ErrorType.database,
-        originalError: e,
-      );
-    }
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          final now = DateTime.now().toIso8601String();
+          final data = {
+            'name': homeName,
+            'createdAt': now,
+            'updatedAt': now,
+          };
+          return await db.insert('homes', data);
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to add home',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Add home',
+    );
   }
 
   Future<List<String>> getAllHomes() async {
@@ -733,17 +781,164 @@ class DatabaseService {
     }
   }
 
-  Future<int> deleteHome(String homeName) async {
+  Future<List<Home>> getHomesWithClientCount() async {
     try {
       final db = await database;
-      return await db.delete(
-        'homes',
-        where: 'name = ?',
-        whereArgs: [homeName],
-      );
+      final List<Map<String, dynamic>> homeMaps = await db.rawQuery('''
+        SELECT 
+          h.id,
+          h.name,
+          h.createdAt,
+          h.updatedAt,
+          COUNT(c.id) as clientCount
+        FROM homes h
+        LEFT JOIN clients c ON h.name = c.address
+        GROUP BY h.id, h.name, h.createdAt, h.updatedAt
+        ORDER BY h.name ASC
+      ''');
+      
+      return List.generate(homeMaps.length, (i) {
+        final map = homeMaps[i];
+        return Home.fromMap({
+          'id': map['id'],
+          'name': map['name'],
+          'createdAt': map['createdAt'],
+          'updatedAt': map['updatedAt'],
+          'clientCount': map['clientCount'],
+        });
+      });
     } catch (e) {
       throw AppError(
-        message: 'Failed to delete home',
+        message: 'Failed to load homes with client counts',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<Home?> getHome(int id) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'homes',
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+      if (maps.isNotEmpty) {
+        return Home.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load home details',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<Home?> getHomeByName(String name) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'homes',
+        where: 'name = ?',
+        whereArgs: [name],
+      );
+      if (maps.isNotEmpty) {
+        return Home.fromMap(maps.first);
+      }
+      return null;
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load home details',
+        type: ErrorType.database,
+        originalError: e,
+      );
+    }
+  }
+
+  Future<int> updateHome(Home home) async {
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          final updatedHome = home.copyWith(updatedAt: DateTime.now());
+          return await db.update(
+            'homes',
+            updatedHome.toMap(),
+            where: 'id = ?',
+            whereArgs: [home.id],
+          );
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to update home',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Update home',
+    );
+  }
+
+  Future<int> deleteHome(String homeName) async {
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          return await db.delete(
+            'homes',
+            where: 'name = ?',
+            whereArgs: [homeName],
+          );
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to delete home',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Delete home',
+    );
+  }
+
+  Future<int> deleteHomeById(int id) async {
+    return await _retryMechanism.retryDatabaseOperation(
+      () async {
+        try {
+          final db = await database;
+          return await db.delete(
+            'homes',
+            where: 'id = ?',
+            whereArgs: [id],
+          );
+        } catch (e) {
+          throw AppError(
+            message: 'Failed to delete home',
+            type: ErrorType.database,
+            originalError: e,
+          );
+        }
+      },
+      operationName: 'Delete home',
+    );
+  }
+
+  Future<List<Client>> getClientsByHome(String homeName) async {
+    try {
+      final db = await database;
+      final List<Map<String, dynamic>> maps = await db.query(
+        'clients',
+        where: 'address = ?',
+        whereArgs: [homeName],
+        orderBy: 'name ASC',
+      );
+      return List.generate(maps.length, (i) => Client.fromMap(maps[i]));
+    } catch (e) {
+      throw AppError(
+        message: 'Failed to load clients for home',
         type: ErrorType.database,
         originalError: e,
       );

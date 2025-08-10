@@ -28,12 +28,15 @@ class UniversalBottomNavigation extends StatelessWidget {
         onTap: (index) {
           switch (index) {
             case 0:
-              if (currentIndex != 0) Get.toNamed('/tasks');
+              if (currentIndex != 0) Get.offAllNamed('/home');
               break;
             case 1:
               if (currentIndex != 1) Get.toNamed('/client/dashboard');
               break;
             case 2:
+              if (currentIndex != 2) Get.toNamed('/tasks');
+              break;
+            case 3:
               Get.snackbar(
                 'Info',
                 'Settings coming soon',
@@ -50,12 +53,16 @@ class UniversalBottomNavigation extends StatelessWidget {
         elevation: 0,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.task),
-            label: 'Tasks',
+            icon: Icon(Icons.home),
+            label: 'Homes',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.people),
             label: 'Clients',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.task),
+            label: 'Tasks',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

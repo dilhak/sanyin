@@ -1,5 +1,7 @@
 import 'package:get/get.dart';
 
+import '../modules/homes/bindings/home_binding.dart';
+import '../modules/homes/views/home_view.dart';
 import '../modules/tasks/bindings/tasks_binding.dart';
 import '../modules/tasks/views/tasks_view.dart';
 import '../modules/splash/bindings/splash_binding.dart';
@@ -26,10 +28,15 @@ part 'app_routes.dart';
 class AppPages {
   AppPages._();
 
-  static const INITIAL = Routes.CLIENT_DASHBOARD;
+  static const INITIAL = Routes.HOME;
 
   static final routes = [
 
+    GetPage(
+      name: _Paths.HOME,
+      page: () => const HomeView(),
+      binding: HomeBinding(),
+    ),
     GetPage(
       name: _Paths.TASKS,
       page: () => const TasksView(),

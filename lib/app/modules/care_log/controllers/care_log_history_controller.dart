@@ -14,6 +14,7 @@ class CareLogHistoryController extends GetxController {
   final Rx<Client?> selectedClient = Rx<Client?>(null);
   final Rx<CareActivityType?> selectedActivityType = Rx<CareActivityType?>(null);
   final Rx<DateTime?> selectedDate = Rx<DateTime?>(null);
+  final Rx<DateTime> currentDate = DateTime.now().obs;
 
   Map<DateTime, List<CareLog>> get groupedLogs {
     final filteredLogs = _getFilteredLogs();
@@ -69,14 +70,13 @@ class CareLogHistoryController extends GetxController {
       filtered = filtered.where((log) => log.activityType == selectedActivityType.value).toList();
     }
 
-    // Filter by date
-    if (selectedDate.value != null) {
-      final selectedDay = selectedDate.value!;
-      filtered = filtered.where((log) {
-        final logDay = DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
-        return logDay.isAtSameMomentAs(selectedDay);
-      }).toList();
-    }
+    // Filter by date (prioritize currentDate for navigation)
+    final targetDate = selectedDate.value ?? currentDate.value;
+    final targetDay = DateTime(targetDate.year, targetDate.month, targetDate.day);
+    filtered = filtered.where((log) {
+      final logDay = DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
+      return logDay.isAtSameMomentAs(targetDay);
+    }).toList();
 
     return filtered;
   }
@@ -328,6 +328,21 @@ class CareLogHistoryController extends GetxController {
 
   void setDateFilter(DateTime? date) {
     selectedDate.value = date;
+  }
+
+  void goToPreviousDay() {
+    currentDate.value = currentDate.value.subtract(const Duration(days: 1));
+  }
+
+  void goToNextDay() {
+    final tomorrow = currentDate.value.add(const Duration(days: 1));
+    if (tomorrow.isBefore(DateTime.now().add(const Duration(days: 1)))) {
+      currentDate.value = tomorrow;
+    }
+  }
+
+  void goToToday() {
+    currentDate.value = DateTime.now();
   }
 
   @override

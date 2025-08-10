@@ -118,7 +118,7 @@ class TasksView extends GetView<TasksController> {
           child: const Icon(Icons.add, size: 28),
         ),
       ),
-      bottomNavigationBar: const UniversalBottomNavigation(currentIndex: 0),
+      bottomNavigationBar: const UniversalBottomNavigation(currentIndex: 2),
     );
   }
 

@@ -14,6 +14,7 @@ class ClientDashboardController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString selectedHome = 'All Homes'.obs;
   final RxList<String> homes = <String>['All Homes'].obs;
+  final RxnInt selectedHomeId = RxnInt();
   final DatabaseService _databaseService = DatabaseService();
   final ErrorHandler _errorHandler = ErrorHandler();
 
@@ -31,7 +32,34 @@ class ClientDashboardController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadClients();
+    _initializeController();
+  }
+
+  Future<void> _initializeController() async {
+    try {
+      // Check if we're coming from a specific home
+      final arguments = Get.arguments as Map<String, dynamic>?;
+      if (arguments != null) {
+        final homeFromArgs = arguments['selectedHome'] as String?;
+        final homeIdFromArgs = arguments['homeId'] as int?;
+        
+        if (homeFromArgs != null) {
+          selectedHome.value = homeFromArgs;
+          selectedHomeId.value = homeIdFromArgs;
+        }
+      }
+      
+      // Ensure database service is available
+      await _databaseService.database;
+      await loadClients();
+    } catch (e) {
+      print('Failed to initialize client dashboard: $e');
+      _errorHandler.logError(_errorHandler.categorizeError(e));
+      // Set loading to false even if initialization fails
+      isLoading.value = false;
+      // Still allow the dashboard to show, but with an error message
+      _errorHandler.showErrorSnackbar(_errorHandler.categorizeError(e));
+    }
   }
 
   @override
@@ -51,7 +79,15 @@ class ClientDashboardController extends GetxController {
   Future<void> loadClients() async {
     isLoading.value = true;
     try {
-      final clientsList = await _databaseService.getClients();
+      List<Client> clientsList;
+      
+      // If we have a specific home selected, load only those clients
+      if (selectedHome.value != 'All Homes') {
+        clientsList = await _databaseService.getClientsByHome(selectedHome.value);
+      } else {
+        clientsList = await _databaseService.getClients();
+      }
+      
       clients.value = clientsList;
       await _updateHomesList();
       _filterClients();

@@ -17,8 +17,9 @@ class ConnectivityService {
 
   Future<void> initialize() async {
     try {
-      // Check initial connectivity status
-      final result = await _connectivity.checkConnectivity();
+      // Check initial connectivity status with timeout
+      final result = await _connectivity.checkConnectivity()
+          .timeout(const Duration(seconds: 5));
       _isConnected = result != ConnectivityResult.none;
       
       // Listen to connectivity changes
@@ -27,6 +28,7 @@ class ConnectivityService {
           final wasConnected = _isConnected;
           _isConnected = result != ConnectivityResult.none;
           
+          // Only show snackbars if the app is already running (not during initialization)
           if (wasConnected && !_isConnected) {
             _errorHandler.showWarningSnackbar('No internet connection');
           } else if (!wasConnected && _isConnected) {
@@ -34,11 +36,15 @@ class ConnectivityService {
           }
         },
         onError: (error) {
+          print('Connectivity monitoring error: $error');
           _errorHandler.logError(_errorHandler.categorizeError(error));
         },
       );
     } catch (e) {
+      print('Failed to initialize connectivity service: $e');
       _errorHandler.logError(_errorHandler.categorizeError(e));
+      // Set default state if initialization fails
+      _isConnected = true; // Assume connected to prevent blocking app startup
     }
   }
 

@@ -52,7 +52,7 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.all(20),
             children: [
-              _buildHeaderSection(),
+              _buildDateNavigationSection(),
               const SizedBox(height: 24),
               ...controller.groupedLogs.entries.map((entry) {
                 final date = entry.key;
@@ -66,97 +66,98 @@ class CareLogHistoryView extends GetView<CareLogHistoryController> {
     );
   }
 
-  Widget _buildHeaderSection() {
-    return Row(
-      children: [
-        // Date card
-        Container(
-          width: 80,
-          height: 100,
-          decoration: BoxDecoration(
-            color: Colors.blue,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.blue.withValues(alpha: 0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
+  Widget _buildDateNavigationSection() {
+    return Obx(() => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                _getDayOfWeek(DateTime.now()),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              Text(
-                DateTime.now().day.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                controller.careLogs.length.toString(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+        ],
+      ),
+      child: Row(
+        children: [
+          // Previous day button
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              onPressed: controller.goToPreviousDay,
+              icon: const Icon(Icons.chevron_left, size: 24),
+              color: Colors.grey[700],
+              tooltip: 'Previous day',
+            ),
           ),
-        ),
-        const SizedBox(width: 20),
-        // Title section
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Circular icon
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.blue.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.calendar_today_rounded,
-                  color: Colors.blue,
-                  size: 30,
+          
+          // Current date display
+          Expanded(
+            child: GestureDetector(
+              onTap: controller.goToToday,
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(
+                  _formatCurrentDate(controller.currentDate.value),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text(
-                'Activity Diary',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Complete care history',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                  height: 1.4,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
-      ],
-    );
+          
+          // Next day button
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              onPressed: () {
+                final tomorrow = controller.currentDate.value.add(const Duration(days: 1));
+                if (tomorrow.isBefore(DateTime.now().add(const Duration(days: 1)))) {
+                  controller.goToNextDay();
+                }
+              },
+              icon: const Icon(Icons.chevron_right, size: 24),
+              color: controller.currentDate.value.isBefore(DateTime.now()) 
+                  ? Colors.grey[700] 
+                  : Colors.grey[300],
+              tooltip: 'Next day',
+            ),
+          ),
+        ],
+      ),
+    ));
+  }
+
+  String _formatCurrentDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final targetDay = DateTime(date.year, date.month, date.day);
+    
+    if (targetDay.isAtSameMomentAs(today)) {
+      return 'Today';
+    } else if (targetDay.isAtSameMomentAs(today.subtract(const Duration(days: 1)))) {
+      return 'Yesterday';
+    } else if (targetDay.isAtSameMomentAs(today.add(const Duration(days: 1)))) {
+      return 'Tomorrow';
+    } else {
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+      return '${months[date.month - 1]} ${date.day}, ${date.year}';
+    }
   }
 
   String _getDayOfWeek(DateTime date) {
